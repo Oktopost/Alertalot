@@ -1,8 +1,5 @@
-import os
-import yaml
 import argparse
 
-from alertalot.generic.config import Config
 from alertalot.generic.args_object import ArgsObject
 from alertalot.actions import show_config_action
 

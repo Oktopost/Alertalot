@@ -1,7 +1,15 @@
 from alertalot.generic.args_object import ArgsObject
 from alertalot.generic.config import Config
 
-def execute(run_args: ArgsObject) -> None:
+
+def execute(run_args: ArgsObject):
+	"""
+	Load and print the configuration.
+	
+	Args:
+		run_args (ArgsObject): CLI command line arguments
+	
+	"""
 	if run_args.config_file is None:
 		raise ValueError("No config file provided")
 	

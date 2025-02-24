@@ -7,6 +7,10 @@ class ArgsObject:
 		return self.__args.verbose
 	
 	@property
+	def is_dry_run(self) -> bool:
+		return self.__args.dry_run
+	
+	@property
 	def show_config(self) -> bool:
 		return self.__args.show_config
 	

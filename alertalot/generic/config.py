@@ -1,6 +1,5 @@
 import os
 import json
-import yaml
 import jsonschema
 
 from alertalot.generic.file_loader import load
