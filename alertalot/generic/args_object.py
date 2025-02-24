@@ -15,6 +15,10 @@ class ArgsObject:
 		return self.__args.show_config
 	
 	@property
+	def test_aws(self) -> bool:
+		return self.__args.test_aws
+	
+	@property
 	def config_file(self) -> str|None:
 		"""
 		Path to the config file to load.

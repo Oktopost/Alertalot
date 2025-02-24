@@ -2,6 +2,7 @@ import argparse
 
 from alertalot.generic.args_object import ArgsObject
 from alertalot.actions import show_config_action
+from alertalot.actions import test_aws_action
 
 
 def parse_args() -> ArgsObject:
@@ -27,11 +28,21 @@ def parse_args() -> ArgsObject:
 		dest	= "verbose",
 		help	= "Enable verbose output to show details about executed actions")
 	
+	###########
+	# Actions #
+	###########
 	parser.add_argument(
 		"--show-config",
 		action	= "store_true",
 		help	= "If passed, ONLY load the config.yaml file and output the result. "
 				  "If any region is passed, it will be used while loading the config",
+		default	= False)
+	
+	parser.add_argument(
+		"--test-aws",
+		action	= "store_true",
+		help	= "If passed, only check if AWS is accessible by calling sts:GetCallerIdentity. "
+				  "This does not check any other permissions.",
 		default	= False)
 	
 	return ArgsObject(parser.parse_args())
@@ -42,6 +53,8 @@ if __name__ == "__main__":
 	
 	if args_object.show_config:
 		show_config_action.execute(args_object)
+	elif args_object.test_aws:
+		test_aws_action.execute(args_object)
 	
 	exit(1)
 
