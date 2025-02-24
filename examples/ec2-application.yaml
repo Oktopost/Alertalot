@@ -1,0 +1,14 @@
+alarms:
+  - cpu:
+      metric-name: AWS / CPU Usage 1 minute / $INSTANCE_NAME / $INSTANCE_ID
+      alarm-name: $ALARM_ACTION_ARN
+      statistic: Average
+      period: 5 minutes
+      comparison-operator: GreaterThanOrEqualToThreshold
+      threshold: 70%
+      evaluation-periods: 1 minute
+      tags:
+        level: info
+      treat-missing-data: breaching
+  - cpu:
+      asd: 1
