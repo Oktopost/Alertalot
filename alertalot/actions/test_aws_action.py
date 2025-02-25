@@ -18,8 +18,6 @@ def execute(run_args: ArgsObject):
 		if run_args.is_verbose:
 			print(f"Access confirmed.")
 			print(f"Account: {identity['Account']}, ARN: {identity['Arn']}")
-		
-		exit(0)
 	
 	except Exception as e:
 		if run_args.is_verbose:
