@@ -9,7 +9,6 @@ def execute(run_args: ArgsObject):
     
     Args:
         run_args (ArgsObject): CLI command line arguments
-    
     """
     if run_args.instance_id is None:
         raise ValueError("Target must be provided. Missing --instance-id argument.")
@@ -26,8 +25,7 @@ def execute(run_args: ArgsObject):
         if tag["Key"] == 'Name':
             name = tag["Value"]
             break
-        
+    
     print(f"$INSTANCE_ID   : {instance_id}")
     print(f"$INSTANCE_NAME : {name}")
-        
         

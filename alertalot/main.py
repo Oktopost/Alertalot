@@ -1,7 +1,7 @@
 import argparse
 
 from alertalot.generic.args_object import ArgsObject
-from alertalot.actions import show_config_action
+from alertalot.actions import show_parameters_action
 from alertalot.actions import aws_test_action
 from alertalot.actions import show_target_action
 
@@ -12,7 +12,7 @@ def parse_args() -> ArgsObject:
                     "AWS resources based on predefined config")
     
     parser.add_argument("--instance-id", type=str, help="ID of an EC2 instance to generate the alerts for")
-    parser.add_argument("--config-file", type=str, help="Relative path to the configuration file to use")
+    parser.add_argument("--params-file", type=str, help="Relative path to the parameters file to use")
     parser.add_argument("--template-file", type=str, help="Relative path to the template file to use")
     
     parser.add_argument("--region", type=str, help="The AWS region to use")
@@ -33,10 +33,11 @@ def parse_args() -> ArgsObject:
     # Actions #
     ###########
     parser.add_argument(
-        "--show-config",
+        "--show-parameters", "--show-params",
         action="store_true",
-        help="If passed, ONLY load the config.yaml file and output the result. "
-             "If any region is passed, it will be used while loading the config",
+        help="If specified, only loads the parameters.yaml file and outputs the result. "
+             "If a region is provided, parameters defined for that region will be merged "
+             "with those in the global list.",
         default=False)
     
     parser.add_argument(
@@ -58,8 +59,8 @@ def parse_args() -> ArgsObject:
 if __name__ == "__main__":
     args_object = parse_args()
     
-    if args_object.show_config:
-        show_config_action.execute(args_object)
+    if args_object.show_parameters:
+        show_parameters_action.execute(args_object)
     elif args_object.test_aws:
         aws_test_action.execute(args_object)
     elif args_object.show_instance:

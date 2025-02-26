@@ -2,7 +2,10 @@
 load-plugins =
 
 [MESSAGES CONTROL]
-disable=C0303,W1309
+disable=
+    C0303,
+    W1309,
+    missing-module-docstring
 
 [FORMAT]
 max-line-length=120

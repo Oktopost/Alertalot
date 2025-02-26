@@ -12,7 +12,6 @@ def execute(run_args: ArgsObject):
     
     Args:
         run_args (ArgsObject): CLI command line arguments
-    
     """
     try:
         sts = boto3.client("sts")

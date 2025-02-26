@@ -27,6 +27,9 @@ jobs:
         run: |
           ./venv/bin/pytest --cov=alertalot --cov-report=term-missing
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+
       - name: Run pylint
         run: |
-          ./venv/bin/pylint alertalot --fail-under 8
+          ./venv/bin/pylint alertalot --fail-under 9

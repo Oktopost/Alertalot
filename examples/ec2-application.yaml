@@ -10,5 +10,3 @@ alarms:
       tags:
         level: info
       treat-missing-data: breaching
-  - cpu:
-      asd: 1
