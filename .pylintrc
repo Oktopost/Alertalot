@@ -1,0 +1,9 @@
+[MAIN]
+load-plugins =
+
+[MESSAGES CONTROL]
+disable=C0303
+
+[FORMAT]
+max-line-length=120
+

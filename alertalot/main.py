@@ -2,7 +2,7 @@ import argparse
 
 from alertalot.generic.args_object import ArgsObject
 from alertalot.actions import show_config_action
-from alertalot.actions import test_aws_action
+from alertalot.actions import aws_test_action
 from alertalot.actions import show_target_action
 
 
@@ -61,6 +61,6 @@ if __name__ == "__main__":
     if args_object.show_config:
         show_config_action.execute(args_object)
     elif args_object.test_aws:
-        test_aws_action.execute(args_object)
+        aws_test_action.execute(args_object)
     elif args_object.show_instance:
         show_target_action.execute(args_object)
