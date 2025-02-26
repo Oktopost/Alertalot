@@ -25,10 +25,12 @@ jobs:
 
       - name: Run tests
         run: |
-          ./venv/bin/pytest --cov=alertalot --cov-report=term-missing
+          ./venv/bin/pytest --cov=alertalot --cov-report=xml --cov-branch
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run pylint
         run: |
