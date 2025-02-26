@@ -26,3 +26,7 @@ jobs:
       - name: Run tests
         run: |
           ./venv/bin/pytest --cov=alertalot --cov-report=term-missing
+
+      - name: Run pylint
+        run: |
+          ./venv/bin/pylint alertalot --fail-under 8

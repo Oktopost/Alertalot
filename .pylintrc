@@ -2,7 +2,7 @@
 load-plugins =
 
 [MESSAGES CONTROL]
-disable=C0303
+disable=C0303,W1309
 
 [FORMAT]
 max-line-length=120
