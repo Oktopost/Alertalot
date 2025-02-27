@@ -23,13 +23,9 @@ jobs:
           ./venv/bin/pip install -r requirements.txt
           ./venv/bin/pip install -r dev-requirements.txt
 
-      - name: Activate Python Environment
-        run: |
-          source ./venv/bin/activate
-
       - name: Run tests
         run: |
-          pytest --cov=alertalot --cov-report=xml --cov-branch
+          ./venv/bin/pytest --cov=alertalot --cov-report=xml --cov-branch
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -38,8 +34,8 @@ jobs:
 
       - name: Run pylint on alertalot
         run: |
-          pylint alertalot --rcfile=.pylintrc --fail-under 9
+          ./venv/bin/pylint alertalot --rcfile=.pylintrc --fail-under 9
 
       - name: Run pylint on tests
         run: |
-          pylint tests --rcfile=tests/.pylintrc --fail-under 10
+          ./venv/bin/pylint tests --rcfile=tests/.pylintrc --fail-under 10
