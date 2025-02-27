@@ -1,0 +1,41 @@
+name: Run Tests
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          ./venv/bin/pip install --upgrade pip
+          ./venv/bin/pip install -r requirements.txt
+          ./venv/bin/pip install -r dev-requirements.txt
+
+      - name: Run tests
+        run: |
+          ./venv/bin/pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=30
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Run pylint on alertalot
+        run: |
+          ./venv/bin/pylint alertalot --rcfile=.pylintrc --fail-under 9
+
+      - name: Run pylint on tests
+        run: |
+          ./venv/bin/pylint tests --rcfile=tests/.pylintrc --fail-under 10

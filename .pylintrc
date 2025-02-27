@@ -1,0 +1,11 @@
+[MAIN]
+load-plugins =
+
+[MESSAGES CONTROL]
+disable=
+    trailing-whitespace,
+    f-string-without-interpolation,
+    missing-module-docstring
+
+[FORMAT]
+max-line-length=120

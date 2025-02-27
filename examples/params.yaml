@@ -1,4 +1,4 @@
-config:
+params:
   global:
   us-east-1:
     ALARM_ACTION_ARN: "arn:aws:sns:us-east-1:aaaa:bbbb"
