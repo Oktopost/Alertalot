@@ -28,8 +28,8 @@ def test__getitem__():
     
     params.update({"a": 1, "abc": "21"})
     
-    assert params["a"] is 1
-    assert params["abc"] is "21"
+    assert params["a"] == 1
+    assert params["abc"] == "21"
     
     assert params["ABC"] is None
     assert params["missing"] is None
@@ -40,9 +40,9 @@ def test_update__pass_none():
     
     params.update({"a": "b"})
     
-    assert params["a"] is "b"
+    assert params["a"] == "b"
     params.update(None)
-    assert params["a"] is "b"
+    assert params["a"] == "b"
 
 
 def test_update__pass_override_values():
@@ -50,13 +50,13 @@ def test_update__pass_override_values():
     
     params.update({"a": "b", "c": "d"})
     
-    assert params["a"] is "b"
-    assert params["c"] is "d"
+    assert params["a"] == "b"
+    assert params["c"] == "d"
     
     params.update({"c": "n"})
     
-    assert params["a"] is "b"
-    assert params["c"] is "n"
+    assert params["a"] == "b"
+    assert params["c"] == "n"
 
 
 def test_update__pass_new_values():
@@ -64,13 +64,13 @@ def test_update__pass_new_values():
     
     params.update({"a": "b"})
     
-    assert params["a"] is "b"
+    assert params["a"] == "b"
     assert params["c"] is None
     
     params.update({"c": "d"})
     
-    assert params["a"] is "b"
-    assert params["c"] is "d"
+    assert params["a"] == "b"
+    assert params["c"] == "d"
    
 
 def test_as_string__empty():
