@@ -17,8 +17,8 @@ source ./venv/bin/activate
 
 ### Test and Lint Commands
 
-| Task                             | Command                                                 |
-|----------------------------------|---------------------------------------------------------|
-| **Run Unit Tests with Coverage** | `pytest --cov=alertalot`                                |
-| **Lint Alertalot Code**          | `pylint alertalot --rcfile=.pylintrc --fail-under=9`    |
-| **Lint Test Code**               | `pylint tests --rcfile=tests/.pylintrc --fail-under=10` |
+| Task                         | Command                                                  |
+|:-----------------------------|:---------------------------------------------------------|
+| Run Unit Tests with Coverage | `pytest --cov=alertalot`                                 |
+| Lint Alertalot Code          | `pylint alertalot --rcfile=.pylintrc --fail-under=9`     |
+| Lint Test Code               | `pylint tests --rcfile=tests/.pylintrc --fail-under=10`  |

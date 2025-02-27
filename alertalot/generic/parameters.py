@@ -14,17 +14,29 @@ class Parameters:
     def __init__(self):
         self._arguments: dict = {}
     
-    def __contains__(self, name: str) -> bool:
+    def __contains__(self, key: str) -> bool:
         """
         Check if key exists in the dictionary
         
         Args:
-            name (str): The key to check
+            key (str): The key to check
             
         Returns:
             bool: True if the key exists.
         """
-        return name in self._arguments
+        return key in self._arguments
+    
+    def __getitem__(self, key: str) -> str | None:
+        """
+        Get a value from the parameters list by its key.
+        
+        Args:
+            key (str): The Key of the parameter
+
+        Returns:
+            str | None: The value for this given key, or None if the key does not exist.
+        """
+        return self._arguments[key] if key in self else None
     
     def update(self, values: dict | None) -> None:
         """
@@ -70,6 +82,7 @@ class Parameters:
         params.update(values)
         
         return params
+    
     
     @staticmethod
     def parse(file: str, region: str | None = None) -> "Parameters":
