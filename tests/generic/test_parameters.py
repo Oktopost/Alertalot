@@ -1,3 +1,5 @@
+import pytest
+
 from alertalot.generic.parameters import *
 
 
@@ -35,7 +37,7 @@ def test__getitem__():
     assert params["missing"] is None
 
     
-def test_update__pass_none():
+def test__update__pass_none():
     params = Parameters()
     
     params.update({"a": "b"})
@@ -45,7 +47,7 @@ def test_update__pass_none():
     assert params["a"] == "b"
 
 
-def test_update__pass_override_values():
+def test__update__pass_override_values():
     params = Parameters()
     
     params.update({"a": "b", "c": "d"})
@@ -59,7 +61,7 @@ def test_update__pass_override_values():
     assert params["c"] == "n"
 
 
-def test_update__pass_new_values():
+def test__update__pass_new_values():
     params = Parameters()
     
     params.update({"a": "b"})
@@ -73,13 +75,13 @@ def test_update__pass_new_values():
     assert params["c"] == "d"
    
 
-def test_as_string__empty():
+def test__as_string__empty():
     params = Parameters()
     
     assert params.as_string() == "-empty-"
 
 
-def test_as_string__has_data():
+def test__as_string__has_data():
     params = Parameters()
     
     params.update({"a": "b", "e": "f", "long": "value", "srt": "value"})
@@ -89,3 +91,38 @@ def test_as_string__has_data():
            f"e    : f{os.linesep}" \
            f"long : value{os.linesep}" \
            f"srt  : value"
+
+
+def test__substitute_variables():
+    parameters = Parameters()
+    parameters.update({"INSTANCE_ID": 123, "REGION": "us-east-1", "SERVICE": "backend"})
+    
+    assert parameters.substitute_variables("") == ""
+    assert parameters.substitute_variables("$REGION") == "us-east-1"
+    
+    assert parameters.substitute_variables("Instance: $INSTANCE_ID") == "Instance: 123"
+    assert parameters.substitute_variables("R: $REGION, S: $SERVICE") == "R: us-east-1, S: backend"
+    assert parameters.substitute_variables("No variables here.") == "No variables here."
+    assert parameters.substitute_variables("$SERVICE is running") == "backend is running"
+    assert parameters.substitute_variables("Service is $SERVICE") == "Service is backend"
+    assert parameters.substitute_variables("Service: $SERVICE.") == "Service: backend."
+    assert parameters.substitute_variables("Service: $SERVICE!") == "Service: backend!"
+    assert parameters.substitute_variables("$SERVICE, $SERVICE, $SERVICE") == "backend, backend, backend"
+
+
+def test__substitute_variables__not_found():
+    parameters = Parameters()
+    parameters.update({"INSTANCE_ID": 123, "REGION": "us-east-1", "SERVICE": "backend"})
+    
+    with pytest.raises(KeyError, match="Variable 'UNKNOWN' not found in parameters."):
+        parameters.substitute_variables("Unknown: $UNKNOWN")
+    
+    with pytest.raises(KeyError, match="Variable 'UNKNOWN' not found in parameters."):
+        parameters.substitute_variables("Instance: $INSTANCE_ID, Missing: $UNKNOWN")
+
+
+def test__substitute_variables__empty_set():
+    parameters = Parameters()
+    
+    with pytest.raises(KeyError, match="Variable 'SERVICE' not found in parameters."):
+        parameters.substitute_variables("$SERVICE")

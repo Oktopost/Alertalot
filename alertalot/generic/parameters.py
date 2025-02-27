@@ -1,5 +1,5 @@
 import os
-
+import re
 import json
 import jsonschema
 
@@ -10,6 +10,9 @@ class Parameters:
     """
     Container for parameters used to generate an alert configuration from the config file.
     """
+    
+    # Extract values like $INSTANCE_ID from a parameter string
+    __VARIABLE_REGEX = r"\$[a-zA-Z0-9_-]+(?![a-zA-Z0-9_-])"
     
     def __init__(self):
         self._arguments: dict = {}
@@ -48,6 +51,31 @@ class Parameters:
         if values is not None:
             self._arguments.update(values)
     
+    def substitute_variables(self, text: str) -> str:
+        """
+        Replace all $variable occurrences in the given string with their corresponding values
+        from _arguments. If a variable is not found, raise a KeyError.
+        
+        Args:
+            text (str): The input string containing $variable placeholders.
+
+        Returns:
+            str: The string with all variables replaced.
+
+        Raises:
+            KeyError: If a variable is not found in _arguments.
+        """
+        def replace_match(match: re.Match) -> str:
+            # Remove the leading '$'
+            var_name = match.group()[1:]
+            
+            if var_name not in self:
+                raise KeyError(f"Variable '{var_name}' not found in parameters list.")
+            
+            return str(self[var_name])
+        
+        return re.sub(self.__VARIABLE_REGEX, replace_match, text)
+    
     def as_string(self) -> str:
         """
         Return the list of attributes as a string for debug purposes.
@@ -82,6 +110,7 @@ class Parameters:
         params.update(values)
         
         return params
+    
     
     
     @staticmethod
