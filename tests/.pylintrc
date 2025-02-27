@@ -1,0 +1,14 @@
+[MAIN]
+load-plugins =
+
+[MESSAGES CONTROL]
+disable=
+    trailing-whitespace,
+    wildcard-import,
+    unused-wildcard-import,
+    missing-function-docstring,
+    missing-module-docstring
+
+[FORMAT]
+max-line-length=120
+
