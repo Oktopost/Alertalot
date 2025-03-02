@@ -10,6 +10,9 @@ def try_percentage(value: str) -> float | None:
     if re.match(_PERCENT_REGEX, value):
         return float(value.strip('%')) / 100.0
     
+    if value == '100%':
+        return 1.0
+    
     try:
         float_value = float(value)
         

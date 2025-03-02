@@ -1,7 +1,7 @@
 {
   "type": ["object", "null"],
   "properties": {
-    "config": {
+    "params": {
       "type": ["object", "null"],
       "patternProperties": {
         "^[a-z0-9-]+$": {
@@ -15,6 +15,6 @@
       "additionalProperties": false
     }
   },
-  "required": ["config"],
+  "required": ["params"],
   "additionalProperties": false
 }

@@ -1,6 +1,7 @@
 # Python
 venv
 __pycache__/
+.coverage
 
 # IDE
 .idea
