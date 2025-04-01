@@ -34,7 +34,7 @@ jobs:
 
       - name: Run pylint on alertalot
         run: |
-          ./venv/bin/pylint alertalot --rcfile=.pylintrc --fail-under 9
+          ./venv/bin/pylint alertalot --rcfile=.pylintrc --fail-under 10
 
       - name: Run pylint on tests
         run: |
