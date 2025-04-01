@@ -118,3 +118,58 @@ def test__str2time__times():
     assert str2time("1.5 hours") == 60 * 60 + 30 * 60
     assert str2time("0.5h") == 30 * 60
     assert str2time("1h 0.5m") == 60 * 60 + 30
+
+
+def test__str2bytes__numeric_input():
+    assert str2bytes("123") == 123
+    assert str2bytes("123.5") == 123
+
+
+def test__str2bytes__byte_units():
+    assert str2bytes("345 byte") == 345
+    assert str2bytes("345 b") == 345
+    assert str2bytes("345bytes") == 345
+    assert str2bytes("345 BYTES") == 345
+
+
+def test__str2bytes__kilobyte_units():
+    assert str2bytes("89 kB") == 91136  # 89 * 1024
+    assert str2bytes("98 Kb") == 100352  # 98 * 1024
+    assert str2bytes("1kb") == 1024
+    assert str2bytes("1 kilobyte") == 1024
+    assert str2bytes("1.5 KB") == 1536  # 1.5 * 1024
+
+
+def test__str2bytes__megabyte_units():
+    assert str2bytes("5 MB") == 5242880  # 5 * 1024^2
+    assert str2bytes("2.5mb") == 2621440  # 2.5 * 1024^2
+    assert str2bytes("1 megabyte") == 1048576  # 1 * 1024^2
+
+
+def test__str2bytes__gigabyte_units():
+    assert str2bytes("1 GB") == 1073741824  # 1 * 1024^3
+    assert str2bytes("0.5gb") == 536870912  # 0.5 * 1024^3
+
+
+def test__str2bytes__terabyte_units():
+    assert str2bytes("1 TB") == 1099511627776  # 1 * 1024^4
+
+
+def test__str2bytes__petabyte_units():
+    assert str2bytes("0.1 PB") == 112589990684262  # 0.1 * 1024^5
+
+
+def test__str2bytes__base_1000():
+    assert str2bytes("1 KB", base=1000) == 1000
+    assert str2bytes("1 MB", base=1000) == 1000000
+    assert str2bytes("1 GB", base=1000) == 1000000000
+
+
+def test__str2bytes__no_space():
+    assert str2bytes("5MB") == 5242880
+    assert str2bytes("10GB") == 10737418240
+
+
+def test__str2bytes__mixed_case():
+    assert str2bytes("5 Mb") == 5242880
+    assert str2bytes("10 gB") == 10737418240

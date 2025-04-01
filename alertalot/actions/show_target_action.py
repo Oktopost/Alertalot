@@ -28,4 +28,3 @@ def execute(run_args: ArgsObject):
     
     print(f"$INSTANCE_ID   : {instance_id}")
     print(f"$INSTANCE_NAME : {name}")
-        
