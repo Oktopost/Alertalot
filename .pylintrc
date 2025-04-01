@@ -3,6 +3,7 @@ load-plugins =
 
 [MESSAGES CONTROL]
 disable=
+    no-else-return,
     trailing-whitespace,
     f-string-without-interpolation,
     missing-module-docstring

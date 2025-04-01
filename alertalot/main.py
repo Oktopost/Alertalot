@@ -7,6 +7,12 @@ from alertalot.actions import show_target_action
 
 
 def parse_args() -> ArgsObject:
+    """
+    Parse command line arguments for the application.
+    
+    Returns:
+        argparse.Namespace: An object containing all parsed command-line arguments.
+    """
     parser = argparse.ArgumentParser(
         description="Create Cloudwatch alerts for "
                     "AWS resources based on predefined config")
