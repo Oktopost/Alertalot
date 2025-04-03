@@ -28,6 +28,17 @@ def test__percentage__invalid():
         percentage("-1%")
 
 
+# noinspection PyTypeChecker
+def test__percentage__non_string_input():
+    assert percentage(0.5) == 0.5
+    assert percentage(1) == 1.0
+    assert percentage(0) == 0.0
+    assert percentage(0.234) == pytest.approx(0.234)
+    
+    with pytest.raises(ValueError, match="is not a valid percentage expression"):
+        percentage(23)
+
+
 def test__try_percentage__valid():
     assert try_percentage("2%") == 0.02
     assert try_percentage("23%") == pytest.approx(0.23)
@@ -44,6 +55,15 @@ def test__try_percentage__invalid():
     assert try_percentage("123abc") is None
     assert try_percentage("") is None
     assert try_percentage("-1%") is None
+
+
+# noinspection PyTypeChecker
+def test__try_percentage__non_string_input():
+    assert try_percentage(0.5) == 0.5
+    assert try_percentage(1) == 1.0
+    assert try_percentage(0) == 0.0
+    assert try_percentage(0.234) == pytest.approx(0.234)
+    assert try_percentage(23) is None
 
 
 def test__try_str2time__valid_inputs():
@@ -66,6 +86,25 @@ def test__try_str2time__invalid_inputs():
     assert try_str2time("1x") is None
     assert try_str2time("thirty minutes") is None
     assert try_str2time("one hour") is None
+
+
+# noinspection PyTypeChecker
+def test__try_str2time__non_string_input():
+    one_minute = 1
+    one_hour = 60
+    
+    assert try_str2time(one_minute) == 1 * 60
+    assert try_str2time(one_hour) == 60 * 60
+    assert try_str2time(1.5) == int(1.5 * 60)
+    assert try_str2time(0) == 0
+
+
+def test__try_str2time__string_int_as_minutes():
+    assert try_str2time("2") == 2 * 60
+    assert try_str2time("60") == 60 * 60
+    assert try_str2time("0") == 0
+    assert try_str2time("1440") == 1440 * 60
+    assert try_str2time("10.5") == 10 * 60 + 30
 
 
 def test__str2time__valid_inputs():
@@ -106,11 +145,41 @@ def test__str2time__error_message():
         str2time("invalid")
 
 
+# noinspection PyTypeChecker
+def test__str2time__non_string_input():
+    assert str2time(1) == 1 * 60
+    assert str2time(60) == 60 * 60
+    assert str2time(1.5) == 30 + 60
+    assert str2time(0) == 0
+
+
+def test__str2time__string_int_as_minutes():
+    assert str2time("2") == 2 * 60
+    assert str2time("60") == 60 * 60
+    assert str2time("0") == 0
+    assert str2time("1440") == 1440 * 60
+
+
+# noinspection PyTypeChecker
+def test__str2time__int_as_minutes():
+    assert str2time(5) == 5 * 60
+    assert str2time(60) == 60 * 60
+    assert str2time(0) == 0
+    assert str2time(1440) == 1440 * 60
+
+
 def test__try_str2time__times():
     assert try_str2time("1.5h") == 60 * 60 + 30 * 60
     assert try_str2time("1.5 hours") == 60 * 60 + 30 * 60
     assert try_str2time("0.5h") == 30 * 60
     assert try_str2time("1h 0.5m") == 60 * 60 + 30
+
+
+def test__try_str2time__int_as_minutes():
+    assert try_str2time(5) == 5 * 60
+    assert try_str2time(60) == 60 * 60
+    assert try_str2time(0) == 0
+    assert try_str2time(1440) == 1440 * 60
 
 
 def test__str2time__times():
@@ -125,6 +194,14 @@ def test__str2bytes__numeric_input():
     assert str2bytes("123.5") == 123
 
 
+# noinspection PyTypeChecker
+def test__str2bytes__non_string_input():
+    assert str2bytes(123) == 123
+    assert str2bytes(123.5) == 123
+    assert str2bytes(0) == 0
+    assert str2bytes(1024) == 1024
+
+
 def test__str2bytes__byte_units():
     assert str2bytes("345 byte") == 345
     assert str2bytes("345 b") == 345
@@ -133,43 +210,43 @@ def test__str2bytes__byte_units():
 
 
 def test__str2bytes__kilobyte_units():
-    assert str2bytes("89 kB") == 91136  # 89 * 1024
-    assert str2bytes("98 Kb") == 100352  # 98 * 1024
-    assert str2bytes("1kb") == 1024
-    assert str2bytes("1 kilobyte") == 1024
-    assert str2bytes("1.5 KB") == 1536  # 1.5 * 1024
+    assert str2bytes("89 kB") == 89 * 1024
+    assert str2bytes("98 Kb") == 98 * 1024
+    assert str2bytes("1kb") == 1 * 1024
+    assert str2bytes("1 kilobyte") == 1 * 1024
+    assert str2bytes("1.5 KB") == 1.5 * 1024
 
 
 def test__str2bytes__megabyte_units():
-    assert str2bytes("5 MB") == 5242880  # 5 * 1024^2
-    assert str2bytes("2.5mb") == 2621440  # 2.5 * 1024^2
-    assert str2bytes("1 megabyte") == 1048576  # 1 * 1024^2
+    assert str2bytes("5 MB") == 5 * 1024**2
+    assert str2bytes("2.5mb") == 2.5 * 1024**2
+    assert str2bytes("1 megabyte") == 1 * 1024**2
 
 
 def test__str2bytes__gigabyte_units():
-    assert str2bytes("1 GB") == 1073741824  # 1 * 1024^3
-    assert str2bytes("0.5gb") == 536870912  # 0.5 * 1024^3
+    assert str2bytes("1 GB") == 1 * 1024**3
+    assert str2bytes("0.5gb") == 0.5 * 1024**3
 
 
 def test__str2bytes__terabyte_units():
-    assert str2bytes("1 TB") == 1099511627776  # 1 * 1024^4
+    assert str2bytes("1 TB") == 1 * 1024**4
 
 
 def test__str2bytes__petabyte_units():
-    assert str2bytes("0.1 PB") == 112589990684262  # 0.1 * 1024^5
+    assert str2bytes("0.1 PB") == int(0.1 * 1024**5)
 
 
 def test__str2bytes__base_1000():
-    assert str2bytes("1 KB", base=1000) == 1000
-    assert str2bytes("1 MB", base=1000) == 1000000
-    assert str2bytes("1 GB", base=1000) == 1000000000
+    assert str2bytes("1 KB", base=1000) == 1 * 1000**1
+    assert str2bytes("1 MB", base=1000) == 1 * 1000**2
+    assert str2bytes("1 GB", base=1000) == 1 * 1000**3
 
 
 def test__str2bytes__no_space():
-    assert str2bytes("5MB") == 5242880
-    assert str2bytes("10GB") == 10737418240
+    assert str2bytes("5MB") == 5 * 1024**2
+    assert str2bytes("10GB") == 10 * 1024**3
 
 
 def test__str2bytes__mixed_case():
-    assert str2bytes("5 Mb") == 5242880
-    assert str2bytes("10 gB") == 10737418240
+    assert str2bytes("5 Mb") == 5 * 1024**2
+    assert str2bytes("10 gB") == 10 * 1024**3

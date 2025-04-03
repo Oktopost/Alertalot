@@ -38,7 +38,8 @@ def try_percentage(value: str) -> float | None:
     Returns:
         float | None: The percentage as a float between 0 and 1, or None if conversion fails
     """
-
+    value = str(value)
+    
     if re.match(_PERCENT_REGEX, value):
         return float(value.strip('%')) / 100.0
     
@@ -78,20 +79,32 @@ def percentage(value: str) -> float:
     return value
 
 
-def try_str2time(value: str) -> int | None:
+def try_str2time(value: str | int | float) -> int | float | None:
     """
-    Attempts to convert a string time expression to seconds.
+    Attempts to convert a string time expression or int to seconds.
 
     Delegates to the timeparse function to handle various time formats
     like '1h30m', '90s', etc.
     
+    If an integer or float is provided, it's treated as minutes and converted to seconds as integer.
+    
     Args:
-        value (str): String representation of a time duration
+        value (str | int | float):
+            String representation of a time duration, integer number of minutes, or float number of seconds.
     
     Returns:
-        int | None: The time in seconds as an integer, or None if conversion fails
+        int | None: The time in seconds, or None if conversion fails
     """
-    return timeparse(value)
+    if isinstance(value, str):
+        try:
+            value = float(value)
+        except ValueError:
+            pass
+            
+    if isinstance(value, int) or isinstance(value, float):
+        return int(value * 60)
+    
+    return timeparse(str(value))
 
 
 def str2time(value: str) -> int:
@@ -130,6 +143,7 @@ def str2bytes(size_str: str, base: int = 1024) -> int:
     Returns:
         int: Size in bytes
     """
+    size_str = str(size_str)
     size_str = size_str.strip()
     
     split_index = 0

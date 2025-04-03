@@ -78,21 +78,6 @@ OPTIONAL_ALARM_KEYS = [
 ]
 
 
-def validate_ec2_metric_name(alarm_config: Dict[str, Any], issues: List[str], metric_name: str = "metric-name") -> str:
-    """
-    TODO: comment
-    """
-    metric_name = validate_metric_name(alarm_config, issues)
-    
-    if metric_name in EC2_VALID_METRICS:
-        return metric_name
-    
-    if metric_name.startswith("AWS / "):
-        return metric_name
-    
-    return metric_name
-
-
 def expand_ec2_metric_shortcut(alarm_name: str) -> str:
     """
     Expands a metric shortcut to its full name if applicable.
@@ -127,7 +112,7 @@ def validate_ec2_alarm_config(config: Dict[str, Any], issues: List[str]) -> Dict
         return {}
     
     validated_config = {
-        "metric-name":          validate_ec2_metric_name(config, issues),
+        "metric-name":          validate_metric_name(config, issues),
         "alarm-name":           validate_alarm_name(config, issues),
         "statistic":            validate_statistic(config, issues),
         "period":               validate_period(config, issues),

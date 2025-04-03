@@ -1,0 +1,3 @@
+"""
+Alertalot framework.
+"""

@@ -280,7 +280,6 @@ def validate_threshold(
     """
     threshold_value = alarm_config[key]
     
-    
     try:
         threshold = percentage(threshold_value)
     except ValueError as e:
