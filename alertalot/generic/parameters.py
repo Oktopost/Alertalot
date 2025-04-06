@@ -1,6 +1,7 @@
 import os
 import re
 import json
+
 import jsonschema
 
 from alertalot.generic.file_loader import load
@@ -41,17 +42,21 @@ class Parameters:
         """
         return self._arguments[key] if key in self else None
     
-    def update(self, values: dict | None) -> None:
+    def update(self, values) -> None:
         """
         Add new attributes. Override any existing.
         
         Args:
-            values (dict): The attributes to add.
+            values (dict | Parameters): The attributes to add.
         """
-        if values is not None:
+        if isinstance(values, Parameters):
+            self._arguments.update(values._arguments)
+        elif isinstance(values, dict):
             self._arguments.update(values)
+        elif values is not None:
+            raise ValueError("Expecting a Parameters object or dict")
     
-    def substitute_variables(self, text: str) -> str:
+    def substitute(self, text: str) -> str:
         """
         Replace all $variable occurrences in the given string with their corresponding values
         from _arguments. If a variable is not found, raise a KeyError.

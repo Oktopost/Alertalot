@@ -1,9 +1,11 @@
 import argparse
 
 from alertalot.generic.args_object import ArgsObject
+
 from alertalot.actions import show_parameters_action
-from alertalot.actions import aws_test_action
+from alertalot.actions import show_alarms_template_action
 from alertalot.actions import show_target_action
+from alertalot.actions import aws_test_action
 
 
 def parse_args() -> ArgsObject:
@@ -59,6 +61,14 @@ def parse_args() -> ArgsObject:
         help="If set, load and describe the target object. A valid target must be provided.",
         default=False)
     
+    parser.add_argument(
+        "--show-alarms",
+        action="store_true",
+        help="If specified, only loads the alarms file and outputs the result. "
+             "If a region or aws resource are provided, parameters defined for that region and aws resource"
+             "with those in the global list.",
+        default=False)
+    
     return ArgsObject(parser.parse_args())
 
 
@@ -71,3 +81,5 @@ if __name__ == "__main__":
         aws_test_action.execute(args_object)
     elif args_object.show_instance:
         show_target_action.execute(args_object)
+    elif args_object.show_alarms:
+        show_alarms_template_action.execute(args_object)

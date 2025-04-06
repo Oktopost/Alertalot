@@ -27,4 +27,3 @@ def execute(run_args: ArgsObject):
     config = Parameters.parse(run_args.params_file, run_args.region)
     
     print(config.as_string())
- 

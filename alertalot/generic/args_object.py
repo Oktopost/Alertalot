@@ -1,3 +1,7 @@
+from entities.base_aws_entity import BaseAwsEntity
+from entities.aws_ec2_entity import AwsEc2Entity
+
+
 class ArgsObject:
     """
     A wrapper for arguments passed to the Alertalot executable.
@@ -47,6 +51,16 @@ class ArgsObject:
         return self.__args.show_instance
     
     @property
+    def show_alarms(self) -> bool:
+        """
+        If set, load the alarms template file, validate it and print the result or errors if any found.
+        
+        Returns:
+            bool: True if the flag is set.
+        """
+        return self.__args.show_alarms
+    
+    @property
     def test_aws(self) -> bool:
         """
         If set, tests whether AWS is reachable and authentication is successful.
@@ -64,6 +78,16 @@ class ArgsObject:
             str | None: The path to the file, or None if not provided
         """
         return self.__args.params_file
+    
+    @property
+    def template_file(self) -> str | None:
+        """
+        Path to the alarms template file to load.
+        
+        Returns:
+            str | None: The path to the file, or None if not provided
+        """
+        return self.__args.template_file
     
     @property
     def region(self) -> str | None:
@@ -86,3 +110,18 @@ class ArgsObject:
 
         """
         return self.__args.instance_id
+
+    
+    def get_aws_entity(self) -> BaseAwsEntity | None:
+        """
+        Get the entity object based on the type of the argument passed.
+        
+        Returns:
+            BaseAwsEntity: The entity object.
+            None: If no entity ID flag found.
+        """
+        
+        if self.instance_id is not None:
+            return AwsEc2Entity()
+        
+        return None

@@ -73,6 +73,20 @@ def test__update__pass_new_values():
     
     assert params["a"] == "b"
     assert params["c"] == "d"
+
+
+def test__update__pass_parameters_object():
+    params1 = Parameters()
+    params1.update({"a": "b", "c": "d"})
+    
+    params2 = Parameters()
+    params2.update({"e": "f", "c": "g"})
+    
+    params1.update(params2)
+    
+    assert params1["a"] == "b"
+    assert params1["c"] == "g"
+    assert params1["e"] == "f"
    
 
 def test__as_string__empty():
@@ -97,17 +111,17 @@ def test__substitute_variables():
     parameters = Parameters()
     parameters.update({"INSTANCE_ID": 123, "REGION": "us-east-1", "SERVICE": "backend"})
     
-    assert parameters.substitute_variables("") == ""
-    assert parameters.substitute_variables("$REGION") == "us-east-1"
+    assert parameters.substitute("") == ""
+    assert parameters.substitute("$REGION") == "us-east-1"
     
-    assert parameters.substitute_variables("Instance: $INSTANCE_ID") == "Instance: 123"
-    assert parameters.substitute_variables("R: $REGION, S: $SERVICE") == "R: us-east-1, S: backend"
-    assert parameters.substitute_variables("No variables here.") == "No variables here."
-    assert parameters.substitute_variables("$SERVICE is running") == "backend is running"
-    assert parameters.substitute_variables("Service is $SERVICE") == "Service is backend"
-    assert parameters.substitute_variables("Service: $SERVICE.") == "Service: backend."
-    assert parameters.substitute_variables("Service: $SERVICE!") == "Service: backend!"
-    assert parameters.substitute_variables("$SERVICE, $SERVICE, $SERVICE") == "backend, backend, backend"
+    assert parameters.substitute("Instance: $INSTANCE_ID") == "Instance: 123"
+    assert parameters.substitute("R: $REGION, S: $SERVICE") == "R: us-east-1, S: backend"
+    assert parameters.substitute("No variables here.") == "No variables here."
+    assert parameters.substitute("$SERVICE is running") == "backend is running"
+    assert parameters.substitute("Service is $SERVICE") == "Service is backend"
+    assert parameters.substitute("Service: $SERVICE.") == "Service: backend."
+    assert parameters.substitute("Service: $SERVICE!") == "Service: backend!"
+    assert parameters.substitute("$SERVICE, $SERVICE, $SERVICE") == "backend, backend, backend"
 
 
 def test__substitute_variables__not_found():
@@ -115,14 +129,14 @@ def test__substitute_variables__not_found():
     parameters.update({"INSTANCE_ID": 123, "REGION": "us-east-1", "SERVICE": "backend"})
     
     with pytest.raises(KeyError, match="Variable 'UNKNOWN' not found in parameters."):
-        parameters.substitute_variables("Unknown: $UNKNOWN")
+        parameters.substitute("Unknown: $UNKNOWN")
     
     with pytest.raises(KeyError, match="Variable 'UNKNOWN' not found in parameters."):
-        parameters.substitute_variables("Instance: $INSTANCE_ID, Missing: $UNKNOWN")
+        parameters.substitute("Instance: $INSTANCE_ID, Missing: $UNKNOWN")
 
 
 def test__substitute_variables__empty_set():
     parameters = Parameters()
     
     with pytest.raises(KeyError, match="Variable 'SERVICE' not found in parameters."):
-        parameters.substitute_variables("$SERVICE")
+        parameters.substitute("$SERVICE")
