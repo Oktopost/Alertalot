@@ -71,12 +71,12 @@ def percentage(value: str) -> float:
     Raises:
         ValueError: If the string cannot be converted to a percentage
     """
-    value = try_percentage(value)
+    parsed_value = try_percentage(value)
     
-    if value is None:
+    if parsed_value is None:
         raise ValueError(f"String '{value}', is not a valid percentage expression. Use 23.4% or 0.234 formats")
     
-    return value
+    return parsed_value
 
 
 def try_str2time(value: str | int | float) -> int | float | None:

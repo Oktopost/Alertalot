@@ -16,7 +16,7 @@ class Parameters:
     __VARIABLE_REGEX = r"\$[a-zA-Z0-9_-]+(?![a-zA-Z0-9_-])"
     
     def __init__(self):
-        self._arguments: dict = {}
+        self.__arguments: dict = {}
     
     def __contains__(self, key: str) -> bool:
         """
@@ -28,7 +28,7 @@ class Parameters:
         Returns:
             bool: True if the key exists.
         """
-        return key in self._arguments
+        return key in self.__arguments
     
     def __getitem__(self, key: str) -> str | None:
         """
@@ -40,7 +40,18 @@ class Parameters:
         Returns:
             str | None: The value for this given key, or None if the key does not exist.
         """
-        return self._arguments[key] if key in self else None
+        return self.__arguments[key] if key in self else None
+    
+    def __iter__(self):
+        """
+        Return an iterator over the parameter keys.
+        
+        Returns:
+            iterator: An iterator over the keys in _arguments.
+        """
+        for key, value in self.__arguments.items():
+            yield key, value
+    
     
     def update(self, values) -> None:
         """
@@ -50,9 +61,9 @@ class Parameters:
             values (dict | Parameters): The attributes to add.
         """
         if isinstance(values, Parameters):
-            self._arguments.update(values._arguments)
+            self.__arguments.update(values.__arguments)
         elif isinstance(values, dict):
-            self._arguments.update(values)
+            self.__arguments.update(values)
         elif values is not None:
             raise ValueError("Expecting a Parameters object or dict")
     
@@ -81,20 +92,6 @@ class Parameters:
         
         return re.sub(self.__VARIABLE_REGEX, replace_match, text)
     
-    def as_string(self) -> str:
-        """
-        Return the list of attributes as a string for debug purposes.
-        Returns:
-            str: String with each attribute on a new line, in a format "key    : value".
-                or "-empty-" string if the attributes set is empty.
-        """
-        if len(self._arguments) == 0:
-            return "-empty-"
-        
-        length = len(max(self._arguments.keys(), key=len)) + 1
-        
-        return os.linesep.join(f"{k.ljust(length)}: {v}" for k, v in self._arguments.items())
-    
     def merge(self, values: dict) -> "Parameters":
         """
         Creates and returns a new Parameters object by merging the values of this instance
@@ -111,7 +108,7 @@ class Parameters:
         
         params = Parameters()
         
-        params.update(self._arguments)
+        params.update(self.__arguments)
         params.update(values)
         
         return params

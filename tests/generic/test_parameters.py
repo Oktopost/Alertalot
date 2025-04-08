@@ -87,24 +87,6 @@ def test__update__pass_parameters_object():
     assert params1["a"] == "b"
     assert params1["c"] == "g"
     assert params1["e"] == "f"
-   
-
-def test__as_string__empty():
-    params = Parameters()
-    
-    assert params.as_string() == "-empty-"
-
-
-def test__as_string__has_data():
-    params = Parameters()
-    
-    params.update({"a": "b", "e": "f", "long": "value", "srt": "value"})
-    
-    assert params.as_string() == \
-           f"a    : b{os.linesep}" \
-           f"e    : f{os.linesep}" \
-           f"long : value{os.linesep}" \
-           f"srt  : value"
 
 
 def test__substitute_variables():

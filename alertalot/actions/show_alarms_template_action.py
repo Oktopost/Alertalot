@@ -1,15 +1,13 @@
 import sys
 
-import boto3
-import yaml
-
 from alertalot.generic.parameters import Parameters
 from alertalot.generic.args_object import ArgsObject
 from alertalot.generic.file_loader import load
 from alertalot.validation.alarms_config_validator import AlarmsConfigValidator
+from alertalot.generic.output import Output
 
 
-def execute(run_args: ArgsObject):
+def execute(run_args: ArgsObject, output: Output):
     """
     Load and print the alarms configuration file.
     
@@ -21,6 +19,7 @@ def execute(run_args: ArgsObject):
     
     Args:
         run_args (ArgsObject): CLI command line arguments
+        output (Output): Output object to use
     """
     parameters = Parameters()
     entity_object = run_args.get_aws_entity()
@@ -34,14 +33,10 @@ def execute(run_args: ArgsObject):
     if run_args.params_file:
         parameters.update(Parameters.parse(run_args.params_file, run_args.region))
     
-    if run_args.instance_id is not None:
-        if run_args.is_verbose:
-            print(f"Loading instance {run_args.instance_id}...")
-        
-        parameters.update(entity_object.load_resource_values(run_args.instance_id))
-        
-        if run_args.is_verbose:
-            print("---------")
+    if run_args.ec2_id is not None:
+        output.print_if_verbose(f"Loading instance {run_args.ec2_id}...")
+        parameters.update(entity_object.load_resource_values(run_args.ec2_id))
+        output.print_if_verbose()
     
     alarm_config = load(run_args.template_file)
     
@@ -59,12 +54,11 @@ def execute(run_args: ArgsObject):
         
         sys.exit(1)
     elif run_args.is_verbose:
-        print(f"Total alarms found: {len(validator.parsed_config)}")
-        print("Template")
-        print("---------")
+        output.print(f"Total alarms found: {len(validator.parsed_config)}")
+        output.print("Template")
+        output.print("---------")
         
-        yaml_content = yaml.dump(validator.parsed_config, default_flow_style=False, sort_keys=False)
+        output.print_yaml(validator.parsed_config)
         
-        print(yaml_content)
-        print("---------")
+        output.print("---------")
         

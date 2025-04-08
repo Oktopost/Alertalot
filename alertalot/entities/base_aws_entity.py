@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from validation.aws_alarm_validator import AwsAlarmValidator
+from alertalot.validation.aws_alarm_validator import AwsAlarmValidator
 
 
 class BaseAwsEntity(ABC):

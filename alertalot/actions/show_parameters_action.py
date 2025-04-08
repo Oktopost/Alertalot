@@ -1,29 +1,30 @@
 from alertalot.generic.args_object import ArgsObject
 from alertalot.generic.parameters import Parameters
+from alertalot.generic.output import Output
 
 
-def execute(run_args: ArgsObject):
+def execute(run_args: ArgsObject, output: Output):
     """
     Load and print the parameters.
     
     Args:
         run_args (ArgsObject): CLI command line arguments
+        output (Output): Output object to use
     """
     if run_args.params_file is None:
         raise ValueError("No parameters file provided")
     
-    if run_args.is_verbose:
-        print(f"Config: {run_args.params_file}")
+    output.print_if_verbose(f"Config: {run_args.params_file}")
         
-        if run_args.region is None:
-            print("Region: <None>")
-        else:
-            print(f"Region: {run_args.region}")
+    if run_args.region is None:
+        output.print("Region: <None>")
+    else:
+        output.print(f"Region: {run_args.region}")
         
-        print()
-        print("Config:")
-        print("-------")
+    output.print_if_verbose()
+    output.print_if_verbose("Config:")
+    output.print_if_verbose("-------")
     
     config = Parameters.parse(run_args.params_file, run_args.region)
     
-    print(config.as_string())
+    output.print_parameters(config)

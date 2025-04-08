@@ -5,7 +5,7 @@ from alertalot.generic.input_parser import (
     str2time,
     str2bytes
 )
-from generic.parameters import Parameters
+from alertalot.generic.parameters import Parameters
 
 
 class AwsAlarmValidator:

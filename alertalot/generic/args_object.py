@@ -1,14 +1,19 @@
-from entities.base_aws_entity import BaseAwsEntity
-from entities.aws_ec2_entity import AwsEc2Entity
+import boto3
+
+from alertalot.entities.base_aws_entity import BaseAwsEntity
+from alertalot.entities.aws_ec2_entity import AwsEc2Entity
 
 
 class ArgsObject:
     """
     A wrapper for arguments passed to the Alertalot executable.
     """
-    
     def __init__(self, args):
         self.__args = args
+        
+        if isinstance(self.region, str):
+            boto3.setup_default_session(region_name=self.region)
+
     
     @property
     def is_verbose(self) -> bool:
@@ -51,14 +56,14 @@ class ArgsObject:
         return self.__args.show_instance
     
     @property
-    def show_alarms(self) -> bool:
+    def show_template(self) -> bool:
         """
         If set, load the alarms template file, validate it and print the result or errors if any found.
         
         Returns:
             bool: True if the flag is set.
         """
-        return self.__args.show_alarms
+        return self.__args.show_template
     
     @property
     def test_aws(self) -> bool:
@@ -101,7 +106,7 @@ class ArgsObject:
         return self.__args.region
     
     @property
-    def instance_id(self) -> str | None:
+    def ec2_id(self) -> str|None:
         """
         The target instance.
         
@@ -109,7 +114,7 @@ class ArgsObject:
             str | None: Instance ID, or null if not provided
 
         """
-        return self.__args.instance_id
+        return self.__args.ec2_id
 
     
     def get_aws_entity(self) -> BaseAwsEntity | None:
@@ -121,7 +126,7 @@ class ArgsObject:
             None: If no entity ID flag found.
         """
         
-        if self.instance_id is not None:
+        if self.ec2_id is not None:
             return AwsEc2Entity()
         
         return None

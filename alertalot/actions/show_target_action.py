@@ -2,30 +2,41 @@ import boto3
 
 from alertalot.generic.args_object import ArgsObject
 from alertalot.generic.output import get_aligned_dict
+from alertalot.generic.output import Output
 
 
-def execute(run_args: ArgsObject):
+def execute(run_args: ArgsObject, output: Output):
     """
     Load the target from AWS and show the arguments for this instance.
     
     Args:
         run_args (ArgsObject): CLI command line arguments
+        output (Output): Output object to use
     """
-    if run_args.instance_id is None:
+    if run_args.ec2_id is None:
         raise ValueError("Target must be provided. Missing --instance-id argument.")
     
-    if run_args.is_verbose:
-        print(f"Loading instance {run_args.instance_id}...")
-    
-    instance_id = run_args.instance_id
     entity_object = run_args.get_aws_entity()
     
-    ec2 = boto3.client("ec2")
-    response = ec2.describe_instances(InstanceIds=[instance_id])
+    if run_args.is_verbose:
+        print(f"Loading instance {run_args.ec2_id}...")
+    
+    from rich.console import Console
+    from rich.progress import Progress, SpinnerColumn, TextColumn
+    import time
+    from rich.live import Live
+    from rich.spinner import Spinner
+    spinner = Spinner('bouncingBall')
+
+    console = Console()
+    with Live(spinner, console=console, transient=True):
+        instance = entity_object.load_entity(run_args.ec2_id)
+    
+    # instance = entity_object.load_entity(run_args.ec2_id)
     
     if run_args.is_verbose:
         print("Instance found")
         print()
     
-    values = entity_object.get_resource_values(response)
+    values = entity_object.get_resource_values(instance)
     print(get_aligned_dict(values, padding=4))
