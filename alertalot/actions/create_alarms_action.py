@@ -66,8 +66,12 @@ def execute(run_args: ArgsObject, output: Output):
             "Namespace": "AWS/EC2",
             "Period": config["period"],
             "Statistic": config["statistic"],
-            "Threshold": config["threshold"],
+            "Threshold": config["threshold"] * 100,
             "ActionsEnabled": False,
+            "Dimensions": [{
+                "Name": "InstanceId",
+                "Value": run_args.ec2_id
+            }]
         }
 
         if "alarm-actions" in config:
