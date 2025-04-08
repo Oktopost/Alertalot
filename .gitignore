@@ -2,6 +2,7 @@
 venv
 __pycache__/
 .coverage
+alertalot.egg-info
 
 # IDE
 .idea
