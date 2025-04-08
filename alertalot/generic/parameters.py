@@ -15,8 +15,9 @@ class Parameters:
     # Extract values like $INSTANCE_ID from a parameter string
     __VARIABLE_REGEX = r"\$[a-zA-Z0-9_-]+(?![a-zA-Z0-9_-])"
     
-    def __init__(self):
-        self.__arguments: dict = {}
+    
+    def __init__(self, parameters: dict | None = None):
+        self.__arguments: dict = parameters or {}
     
     def __contains__(self, key: str) -> bool:
         """

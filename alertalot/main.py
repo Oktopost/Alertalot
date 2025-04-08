@@ -1,3 +1,4 @@
+import sys
 import argparse
 
 from alertalot.generic.args_object import ArgsObject
@@ -9,7 +10,7 @@ from alertalot.actions import aws_test_action
 from alertalot.generic.output import Output
 
 
-def parse_args() -> ArgsObject:
+def __parse_args() -> ArgsObject:
     """
     Parse command line arguments for the application.
     
@@ -36,7 +37,18 @@ def parse_args() -> ArgsObject:
         help="Simulate the requests without executing them",
         default=False)
     
-    parser.add_argument(
+    ##########
+    # Output #
+    ##########
+    output_group = parser.add_mutually_exclusive_group()
+    
+    output_group.add_argument(
+        "-q", "--quiet",
+        action="store_true",
+        dest="quiet",
+        help="Suppress all non-error output")
+    
+    output_group.add_argument(
         "-v", "--verbose",
         action="store_true",
         dest="verbose",
@@ -79,10 +91,7 @@ def parse_args() -> ArgsObject:
     return ArgsObject(parser.parse_args())
 
 
-if __name__ == "__main__":
-    output = Output()
-    args_object = parse_args()
-    
+def __execute(args_object: ArgsObject, output: Output) -> None:
     if args_object.show_parameters:
         show_parameters_action.execute(args_object, output)
     elif args_object.test_aws:
@@ -91,3 +100,19 @@ if __name__ == "__main__":
         show_target_action.execute(args_object, output)
     elif args_object.show_template:
         show_alarms_template_action.execute(args_object, output)
+
+
+if __name__ == "__main__":
+    args_object = __parse_args()
+    
+    output = Output(
+        is_quiet=args_object.is_quiet,
+        is_verbose=args_object.is_verbose
+    )
+    
+    try:
+        __execute(args_object, output)
+    except Exception as exception:
+        output.print_error(exception)
+        raise exception
+        sys.exit(1)

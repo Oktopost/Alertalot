@@ -26,6 +26,16 @@ class ArgsObject:
         return self.__args.verbose
     
     @property
+    def is_quiet(self) -> bool:
+        """
+        If set, suppress all non error output.
+        
+        Returns:
+            bool: True if quiet flag is set.
+        """
+        return self.__args.quiet
+    
+    @property
     def is_dry_run(self) -> bool:
         """
         If set, do not execute any updates, just simulate them.
@@ -125,7 +135,6 @@ class ArgsObject:
             BaseAwsEntity: The entity object.
             None: If no entity ID flag found.
         """
-        
         if self.ec2_id is not None:
             return AwsEc2Entity()
         
