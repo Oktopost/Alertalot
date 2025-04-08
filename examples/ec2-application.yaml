@@ -1,5 +1,5 @@
 alarms:
-  - alarm-name: AWS / CPU Usage 1 minute / $INSTANCE_NAME / $INSTANCE_ID
+  - alarm-name: AWS / CPU Usage 5 minute / $INSTANCE_NAME / $INSTANCE_ID
     metric-name: cpu
     alarm-actions: $ALARM_ACTION_ARN
     statistic: Average
