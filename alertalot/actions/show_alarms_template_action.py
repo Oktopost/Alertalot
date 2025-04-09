@@ -5,7 +5,7 @@ from alertalot.actions.sub_actions.load_template import LoadTemplate
 from alertalot.actions.sub_actions.load_variables_file import LoadVariablesFile
 from alertalot.generic.parameters import Parameters
 from alertalot.generic.args_object import ArgsObject
-from alertalot.generic.output import Output
+from alertalot.generic.output import Output, OutputType
 from alertalot.exception.action_failed_exception import ActionFailedException
 
 
@@ -47,5 +47,5 @@ def execute(run_args: ArgsObject, output: Output):
         raise ActionFailedException()
     
     output.print_line()
-    output.print_yaml(validator.parsed_config)
+    output.print_yaml(validator.parsed_config, type=OutputType.ALWAYS)
     

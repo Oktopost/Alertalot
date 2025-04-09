@@ -1,4 +1,6 @@
 """Output formatting utilities."""
+from enum import Enum
+
 import yaml
 import time
 
@@ -14,6 +16,11 @@ from rich.spinner import Spinner
 from rich.console import Console
 
 from alertalot.generic.parameters import Parameters
+
+
+class OutputType(Enum):
+    VERBOSE = 1,
+    ALWAYS = 2
 
 
 class Output:
@@ -52,19 +59,23 @@ class Output:
         return self.__is_verbose
     
     
-    def print(self, *objects: Any) -> None:
+    def print(self, *objects: Any, type: OutputType = OutputType.ALWAYS) -> None:
         """
         Print objects to the console.
         
         Args:
+            type:
             *objects: Objects to print
+            type (OutputType):
         """
         if self.__is_quiet:
+            return
+        if type == OutputType.VERBOSE and not self.__is_verbose:
             return
         
         self.__console.print(*objects)
         
-    def print_step(self, text: str) -> None:
+    def print_step(self, text: str, type: OutputType = OutputType.VERBOSE) -> None:
         """
         
         Args:
@@ -73,23 +84,23 @@ class Output:
         if not self.__is_first_step_printed:
             self.__is_first_step_printed = True
         else:
-            self.print_if_verbose("")
+            self.print("", type=type)
         
-        self.print_line()
-        self.print_if_verbose(f"➤ [bold]{text}[/bold]")
-        self.print_if_verbose("")
+        self.print_line(type=type)
+        self.print(f"➤ [bold]{text}[/bold]", type=type)
+        self.print("", type=type)
 
-    def print_success(self, *objects: Any) -> None:
-        self.print_if_verbose("[bold green]✓[/bold green]", *objects)
+    def print_success(self, *objects: Any, type: OutputType = OutputType.VERBOSE) -> None:
+        self.print("[bold green]✓[/bold green]", *objects, type=type)
         
-    def print_failure(self, *objects: Any) -> None:
-        self.print("[bold red]✗[/bold red]", *objects)
+    def print_failure(self, *objects: Any, type: OutputType = OutputType.VERBOSE) -> None:
+        self.print("[bold red]✗[/bold red]", *objects, type=type)
         
-    def print_bullet(self, *objects: Any) -> None:
-        self.print_if_verbose("[bold blue]✦[/bold blue]", *objects)
+    def print_bullet(self, *objects: Any, type: OutputType = OutputType.VERBOSE) -> None:
+        self.print("[bold blue]✦[/bold blue]", *objects, type=type)
     
-    def print_line(self) -> None:
-        self.print_if_verbose(Rule())
+    def print_line(self, type: OutputType = OutputType.VERBOSE) -> None:
+        self.print(Rule(), type=type)
     
     def print_if_verbose(self, *objects: Any) -> None:
         """
@@ -98,8 +109,7 @@ class Output:
         Args:
             *objects: Objects to print
         """
-        if not self.__is_quiet and self.is_verbose:
-            self.__console.print(*objects)
+        self.print(*objects, type=OutputType.VERBOSE)
     
     def print_list(self, symbol: str, symbol_style: str, data: list[str]) -> None:
         table = Table(
@@ -159,14 +169,17 @@ class Output:
         
         return result
     
-    def print_yaml(self, data) -> None:
+    def print_yaml(self, data, type: OutputType = OutputType.VERBOSE) -> None:
         """
         Print formatted YAML data.
         
         Args:
             data: The data to print.
+            type (OutputType): Type of the output.
         """
-        if self.__is_quiet:
+        if not self.is_verbose and type == OutputType.VERBOSE:
+            return
+        elif self.__is_quiet:
             return
         
         yaml_str = yaml.dump(data, default_flow_style=False, sort_keys=False)
@@ -174,5 +187,5 @@ class Output:
         
         self.__console.print(yaml_syntax)
     
-    def print_error(self, exception: Exception) -> None:
+    def print_error(self, exception: Exception, type: OutputType = OutputType.ALWAYS) -> None:
         pass
