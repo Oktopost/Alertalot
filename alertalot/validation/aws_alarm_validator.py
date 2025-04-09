@@ -242,13 +242,17 @@ class AwsAlarmValidator:
         
         for i, action in enumerate(actions):
             if not isinstance(action, str):
-                self._issues.append(f"[{key}[{i}]] Action must be a string (ARN), got {type(action).__name__}")
+                self._issues.append(f"[\"{key}\"][{i}] Action must be a string (ARN), got {type(action).__name__}")
                 continue
-                
-            action = self._params.substitute(action)
+            
+            try:
+                action = self._params.substitute(action)
+            except KeyError as e:
+                self._issues.append(f"[\"{key}\"][{i}] {e}")
+                continue
             
             if not action.startswith("arn:aws:sns:"):
-                self._issues.append(f"[{key}[{i}]] Invalid SNS topic ARN format: '{action}'")
+                self._issues.append(f"[\"{key}\"][{i}] Invalid SNS topic ARN format: '{action}'")
             
             validated_actions.append(action)
             
@@ -283,10 +287,13 @@ class AwsAlarmValidator:
             if len(tag_key) > 128:
                 self._issues.append(f"[\"{key}\"] Tag key must be max 128 characters, got {len(tag_key)} characters")
             
-            validated_tags[tag_key] = self._params.substitute(value)
+            try:
+                validated_tags[tag_key] = self._params.substitute(value)
+            except KeyError as e:
+                self._issues.append(f"\"{key}\"] {e}")
         
         return validated_tags
-
+    
     def validate_metric_name(self, key: str = "metric-name", allowed: list[str] | None = None) -> str:
         """
         Validates a CloudWatch metric name.
@@ -305,7 +312,12 @@ class AwsAlarmValidator:
                                 f"got '{type(metric_name).__name__}'")
         
         metric_name = self.__expand_ec2_metric_shortcut(metric_name)
-        metric_name = self._params.substitute(metric_name)
+        
+        try:
+            metric_name = self._params.substitute(metric_name)
+        except KeyError as e:
+            self._issues.append(f"[\"{key}\"] {str(e)}")
+            return metric_name
         
         if len(metric_name.encode('utf-8')) > 255:
             self._issues.append(f"[\"{key}\"] Metric name exceeds maximum length of 255 bytes: '{metric_name}'")
@@ -332,7 +344,11 @@ class AwsAlarmValidator:
             self._issues.append(f"[\"{key}\"] Alarm name must be a non-empty string, "
                                 f"got '{type(alarm_name).__name__}'")
         
-        alarm_name = self._params.substitute(alarm_name)
+        try:
+            alarm_name = self._params.substitute(alarm_name)
+        except KeyError as e:
+            self._issues.append(f"[\"{key}\"] {str(e)}")
+            return alarm_name
         
         if len(alarm_name.encode('utf-8')) > 255:
             self._issues.append(f"[\"{key}\"] Alarm name exceeds maximum length of 255 bytes: '{alarm_name}'")

@@ -56,14 +56,14 @@ class ArgsObject:
         return self.__args.show_parameters
     
     @property
-    def show_instance(self) -> bool:
+    def show_target(self) -> bool:
         """
         If set, execute the show instance action
         
         Returns:
             bool: True if the flag is set.
         """
-        return self.__args.show_instance
+        return self.__args.show_target
     
     @property
     def show_template(self) -> bool:
@@ -94,6 +94,15 @@ class ArgsObject:
             bool: True if the flag is set.
         """
         return self.__args.test_aws
+    
+    @property
+    def with_trace(self) -> bool:
+        """
+        If set, print out the error's trace and not only the error message.
+        Returns:
+            bool: True if the flag is set.
+        """
+        return self.__args.trace
     
     @property
     def params_file(self) -> str | None:

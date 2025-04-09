@@ -3,7 +3,7 @@ from alertalot.generic.parameters import Parameters
 from alertalot.generic.output import Output
 
 
-class LoadVariablesFile:
+class LoadVariablesFileAction:
     @staticmethod
     def execute(run_args: ArgsObject, output: Output) -> Parameters:
         """

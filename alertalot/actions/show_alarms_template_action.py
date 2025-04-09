@@ -1,12 +1,9 @@
-import sys
-
-from alertalot.actions.sub_actions.load_target import LoadTarget
-from alertalot.actions.sub_actions.load_template import LoadTemplate
-from alertalot.actions.sub_actions.load_variables_file import LoadVariablesFile
+from alertalot.actions.sub_actions.load_target_action import LoadTargetAction
+from alertalot.actions.sub_actions.load_template_action import LoadTemplateAction
+from alertalot.actions.sub_actions.load_variables_file_action import LoadVariablesFileAction
 from alertalot.generic.parameters import Parameters
 from alertalot.generic.args_object import ArgsObject
-from alertalot.generic.output import Output, OutputType
-from alertalot.exception.action_failed_exception import ActionFailedException
+from alertalot.generic.output import Output, OutputLevel
 
 
 def execute(run_args: ArgsObject, output: Output):
@@ -33,19 +30,16 @@ def execute(run_args: ArgsObject, output: Output):
         raise ValueError("No template file provided. Missing the --template-file argument.")
     
     if run_args.params_file:
-        parameters.update(LoadVariablesFile.execute(run_args, output))
+        parameters.update(LoadVariablesFileAction.execute(run_args, output))
     
     if run_args.ec2_id is not None:
-        target = LoadTarget.execute(run_args, output)
+        target = LoadTargetAction.execute(run_args, output)
         values = entity_object.get_resource_values(target)
         
         parameters.update(values)
     
-    validator = LoadTemplate.execute(run_args, output, parameters)
-    
-    if validator is None:
-        raise ActionFailedException()
+    validator = LoadTemplateAction.execute(run_args, output, parameters)
     
     output.print_line()
-    output.print_yaml(validator.parsed_config, type=OutputType.ALWAYS)
+    output.print_yaml(validator.parsed_config, level=OutputLevel.NORMAL)
     

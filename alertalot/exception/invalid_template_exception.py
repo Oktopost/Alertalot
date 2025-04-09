@@ -9,5 +9,6 @@ class InvalidTemplateException(Exception):
             f"Issues encountered in the template file {self.__template}. \n"
             "\n > ".join(self.__issues))
     
+    @property
     def issues(self) -> list[str]:
         return self.__issues

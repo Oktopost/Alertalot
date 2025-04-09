@@ -4,7 +4,7 @@ from alertalot.generic.output import Output
 from alertalot.generic.args_object import ArgsObject
 
 
-class LoadTarget:
+class LoadTargetAction:
     @staticmethod
     def execute(run_args: ArgsObject, output: Output) -> dict[str, Any]:
         """

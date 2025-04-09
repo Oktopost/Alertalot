@@ -14,13 +14,26 @@ from rich.table import Table
 from rich.syntax import Syntax
 from rich.spinner import Spinner
 from rich.console import Console
+from rich.traceback import Traceback
 
 from alertalot.generic.parameters import Parameters
 
 
-class OutputType(Enum):
-    VERBOSE = 1,
-    ALWAYS = 2
+class OutputLevel(Enum):
+    """
+    Enum defining different output verbosity levels for logging or displaying messages.
+    
+    This enum determines when certain output content should be displayed based on the
+    verbosity mode of the application.
+    
+    Attributes:
+        VERBOSE: Content is displayed only when verbose mode is enabled.
+        NORMAL: Content is displayed in normal operation mode.
+        QUITE: Content is always displayed, even in quiet mode (typically used for errors).
+    """
+    VERBOSE = 1     # Display only if verbose mode is enabled
+    NORMAL = 2      # Display in normal operation mode
+    QUITE = 3       # Always display, even in quiet mode (errors, critical info)
 
 
 class Output:
@@ -28,6 +41,7 @@ class Output:
             self,
             is_quiet: bool = False,
             is_verbose: bool = False,
+            with_trace: bool = False,
             spinner_style: str = "bouncingBall",
             tables_style: box = box.MINIMAL):
         
@@ -37,8 +51,15 @@ class Output:
         
         self.__theme = "monokai"
         
+        # Exceptions
+        self.__with_trace = with_trace
+        
+        # Output level.
         self.__is_quiet = is_quiet
         self.__is_verbose = is_verbose
+        
+        self.__output_level = OutputLevel.NORMAL
+        self.__define_output_level()
         
         # Spinner
         self.__spinners_style = spinner_style
@@ -46,6 +67,8 @@ class Output:
         # Table
         self.__tables_title_style = "bold"
         self.__tables_style = tables_style
+        
+        
     
     
     @property
@@ -59,48 +82,48 @@ class Output:
         return self.__is_verbose
     
     
-    def print(self, *objects: Any, type: OutputType = OutputType.ALWAYS) -> None:
+    def print(self, *objects: Any, level: OutputLevel = OutputLevel.NORMAL) -> None:
         """
         Print objects to the console.
         
         Args:
-            type:
             *objects: Objects to print
-            type (OutputType):
+            level (OutputLevel):
         """
-        if self.__is_quiet:
-            return
-        if type == OutputType.VERBOSE and not self.__is_verbose:
+        if not self.__check_level(level):
             return
         
         self.__console.print(*objects)
         
-    def print_step(self, text: str, type: OutputType = OutputType.VERBOSE) -> None:
+    def print_step(self, text: str, level: OutputLevel = OutputLevel.VERBOSE) -> None:
         """
         
         Args:
             text (str): Text to print
         """
+        if not self.__check_level(level):
+            return
+        
         if not self.__is_first_step_printed:
             self.__is_first_step_printed = True
         else:
-            self.print("", type=type)
+            self.__console.print("")
         
-        self.print_line(type=type)
-        self.print(f"➤ [bold]{text}[/bold]", type=type)
-        self.print("", type=type)
+        self.print_line(level=level)
+        self.__console.print(f"➤ [bold]{text}[/bold]")
+        self.__console.print("")
 
-    def print_success(self, *objects: Any, type: OutputType = OutputType.VERBOSE) -> None:
-        self.print("[bold green]✓[/bold green]", *objects, type=type)
+    def print_success(self, *objects: Any, level: OutputLevel = OutputLevel.VERBOSE) -> None:
+        self.print("[bold green]✓[/bold green]", *objects, level=level)
         
-    def print_failure(self, *objects: Any, type: OutputType = OutputType.VERBOSE) -> None:
-        self.print("[bold red]✗[/bold red]", *objects, type=type)
+    def print_failure(self, *objects: Any, level: OutputLevel = OutputLevel.VERBOSE) -> None:
+        self.print("[bold red]✗[/bold red]", *objects, level=level)
         
-    def print_bullet(self, *objects: Any, type: OutputType = OutputType.VERBOSE) -> None:
-        self.print("[bold blue]✦[/bold blue]", *objects, type=type)
+    def print_bullet(self, *objects: Any, level: OutputLevel = OutputLevel.VERBOSE) -> None:
+        self.print("[bold blue]✦[/bold blue]", *objects, level=level)
     
-    def print_line(self, type: OutputType = OutputType.VERBOSE) -> None:
-        self.print(Rule(), type=type)
+    def print_line(self, level: OutputLevel = OutputLevel.VERBOSE, color: str = "Green") -> None:
+        self.print(Rule(style=color), level=level)
     
     def print_if_verbose(self, *objects: Any) -> None:
         """
@@ -109,19 +132,30 @@ class Output:
         Args:
             *objects: Objects to print
         """
-        self.print(*objects, type=OutputType.VERBOSE)
+        self.print(*objects, level=OutputLevel.VERBOSE)
     
-    def print_list(self, symbol: str, symbol_style: str, data: list[str]) -> None:
-        table = Table(
-            show_header=False,
-            box=self.__tables_style)
+    def print_list(
+            self,
+            symbol: str,
+            symbol_style: str,
+            data: list[str],
+            level: OutputLevel = OutputLevel.NORMAL) -> None:
+        
+        if not self.__check_level(level):
+            return
+        
+        self.__console.print("")
         
         for item in data:
-            table.add_row(f"[{symbol_style}]{symbol}[/{symbol_style}]{item}")
+            self.__console.print(f"  [{symbol_style}]{symbol}[/{symbol_style}]{item}")
         
-        self.__console.print(table)
+        self.__console.print("")
     
-    def print_key_value(self, data: dict | Parameters, title: str | None = None) -> None:
+    def print_key_value(
+            self,
+            data: dict | Parameters,
+            title: str | None = None,
+            level: OutputLevel = OutputLevel.NORMAL) -> None:
         """
         Print parameters in a formatted table.
         
@@ -129,7 +163,7 @@ class Output:
             data (dict | Parameters): Data to print as a table
             title (str | None): Title of the table
         """
-        if self.__is_quiet:
+        if not self.__check_level(level):
             return
         
         table = Table(
@@ -169,17 +203,15 @@ class Output:
         
         return result
     
-    def print_yaml(self, data, type: OutputType = OutputType.VERBOSE) -> None:
+    def print_yaml(self, data, level: OutputLevel = OutputLevel.VERBOSE) -> None:
         """
         Print formatted YAML data.
         
         Args:
             data: The data to print.
-            type (OutputType): Type of the output.
+            level (OutputLevel): Level of the output.
         """
-        if not self.is_verbose and type == OutputType.VERBOSE:
-            return
-        elif self.__is_quiet:
+        if not self.__check_level(level):
             return
         
         yaml_str = yaml.dump(data, default_flow_style=False, sort_keys=False)
@@ -187,5 +219,24 @@ class Output:
         
         self.__console.print(yaml_syntax)
     
-    def print_error(self, exception: Exception, type: OutputType = OutputType.ALWAYS) -> None:
-        pass
+    def print_error(self, exception: Exception, level: OutputLevel = OutputLevel.NORMAL) -> None:
+        if not self.__check_level(level):
+            return
+        
+        if self.__with_trace:
+            traceback = Traceback.from_exception(type(exception), exception, exception.__traceback__)
+            self.__console.print(traceback)
+        else:
+            self.print_failure(f"[bold red3]Exception:[/bold red3] {exception}", level=level)
+
+    
+    def __check_level(self, level: OutputLevel) -> bool:
+        return level.value >= self.__output_level.value
+    
+    def __define_output_level(self):
+        if self.__is_quiet:
+            self.__output_level = OutputLevel.QUITE
+        elif self.__is_verbose:
+            self.__output_level = OutputLevel.VERBOSE
+        else:
+            self.__output_level = OutputLevel.NORMAL

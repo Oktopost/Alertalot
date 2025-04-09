@@ -1,18 +1,14 @@
-from alertalot.generic.args_object import ArgsObject
-from alertalot.generic.file_loader import load
-from alertalot.validation.alarms_config_validator import AlarmsConfigValidator
 from alertalot.generic.output import Output
 from alertalot.generic.parameters import Parameters
+from alertalot.generic.file_loader import load
+from alertalot.generic.args_object import ArgsObject
+from alertalot.exception.invalid_template_exception import InvalidTemplateException
+from alertalot.validation.alarms_config_validator import AlarmsConfigValidator
 
 
-class LoadTemplate:
+class LoadTemplateAction:
     @staticmethod
-    def __output_errors(output: Output, validator: AlarmsConfigValidator):
-        pass
-    
-    
-    @staticmethod
-    def execute(run_args: ArgsObject, output: Output, parameters: Parameters) -> AlarmsConfigValidator | None:
+    def execute(run_args: ArgsObject, output: Output, parameters: Parameters) -> AlarmsConfigValidator:
         """
         Load the variables file.
         
@@ -42,6 +38,4 @@ class LoadTemplate:
             output.print_success("File loaded")
             return validator
         else:
-            output.print_failure("Errors encountered while parsing the template file")
-            output.print_list("▷  ", "red", validator.issues)
-            return None
+            raise InvalidTemplateException(run_args.template_file, validator.issues)
