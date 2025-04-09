@@ -120,12 +120,12 @@ def str2time(value: str) -> int:
     Raises:
         ValueError: If the string cannot be converted to a time value
     """
-    value = try_str2time(value)
+    parsed_value = try_str2time(value)
     
-    if value is None:
+    if parsed_value is None:
         raise ValueError(f"String '{value}', is not a valid time expression")
     
-    return value
+    return parsed_value
 
 
 def str2bytes(size_str: str, base: int = 1024) -> int:

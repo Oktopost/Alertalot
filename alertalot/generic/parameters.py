@@ -54,6 +54,9 @@ class Parameters:
             yield key, value
     
     
+    def items(self):
+        return self.__arguments.items()
+    
     def update(self, values) -> None:
         """
         Add new attributes. Override any existing.
