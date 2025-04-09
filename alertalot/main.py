@@ -8,6 +8,7 @@ from alertalot.actions import show_alarms_template_action
 from alertalot.actions import show_target_action
 from alertalot.actions import aws_test_action
 from alertalot.generic.output import Output
+from alertalot.exception.action_failed_exception import ActionFailedException
 
 
 def __parse_args() -> ArgsObject:
@@ -112,6 +113,9 @@ if __name__ == "__main__":
     
     try:
         __execute(args_object, output)
+    except ActionFailedException as e:
+        # Exception handled by action.
+        sys.exit(1)
     except Exception as exception:
         output.print_error(exception)
         raise exception

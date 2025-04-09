@@ -1,5 +1,4 @@
-import boto3
-
+from alertalot.actions.sub_actions.load_target import LoadTarget
 from alertalot.generic.args_object import ArgsObject
 from alertalot.generic.output import Output
 
@@ -16,10 +15,8 @@ def execute(run_args: ArgsObject, output: Output):
         raise ValueError("Target must be provided. Missing --instance-id argument.")
     
     entity_object = run_args.get_aws_entity()
-    
-    output.print_step(f"Loading instance {run_args.ec2_id}...")
-    values = output.spinner(lambda: entity_object.load_resource_values(run_args.ec2_id))
+    target = LoadTarget.execute(run_args, output)
     
     output.print_step(f"Variables for instance {run_args.ec2_id}:")
-    output.print_parameters(values)
+    output.print_key_value(entity_object.get_resource_values(target))
 

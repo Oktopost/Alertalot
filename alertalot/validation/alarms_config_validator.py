@@ -84,7 +84,6 @@ class AlarmsConfigValidator:
             
             validator = AwsAlarmValidator(alarm_config, self._parameters)
             
-            
             validator.validate_required_keys(self._entity.get_required_alarm_keys())
             validator.validate_unknown_keys(
                 self._entity.get_required_alarm_keys(),
@@ -95,7 +94,7 @@ class AlarmsConfigValidator:
             
             if validator.issues_found:
                 for issue in validator.issues:
-                    self._issues.append(f"Issue found at index '{i}': {issue}")
+                    self._issues.append(f"[\"alarms\"][{i}]{issue}")
             else:
                 parsed_config.append(parsed_alarm_config)
             

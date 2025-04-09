@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from rich import box
 from rich.text import Text
+from rich.rule import Rule
 from rich.live import Live
 from rich.table import Table
 from rich.syntax import Syntax
@@ -74,8 +75,21 @@ class Output:
         else:
             self.print_if_verbose("")
         
-        self.print_if_verbose(f"> [bold]{text}[/bold]")
+        self.print_line()
+        self.print_if_verbose(f"➤ [bold]{text}[/bold]")
         self.print_if_verbose("")
+
+    def print_success(self, *objects: Any) -> None:
+        self.print_if_verbose("[bold green]✓[/bold green]", *objects)
+        
+    def print_failure(self, *objects: Any) -> None:
+        self.print("[bold red]✗[/bold red]", *objects)
+        
+    def print_bullet(self, *objects: Any) -> None:
+        self.print_if_verbose("[bold blue]✦[/bold blue]", *objects)
+    
+    def print_line(self) -> None:
+        self.print_if_verbose(Rule())
     
     def print_if_verbose(self, *objects: Any) -> None:
         """
@@ -87,21 +101,26 @@ class Output:
         if not self.__is_quiet and self.is_verbose:
             self.__console.print(*objects)
     
-    def print_parameters(self, parameters: Parameters | dict, title: str | None = None) -> None:
+    def print_list(self, symbol: str, symbol_style: str, data: list[str]) -> None:
+        table = Table(
+            show_header=False,
+            box=self.__tables_style)
+        
+        for item in data:
+            table.add_row(f"[{symbol_style}]{symbol}[/{symbol_style}]{item}")
+        
+        self.__console.print(table)
+    
+    def print_key_value(self, data: dict | Parameters, title: str | None = None) -> None:
         """
         Print parameters in a formatted table.
         
         Args:
-            parameters (Parameters | dict):
-                Parameters object containing key-value pairs to display. If dict is passed, it will
-                be cast into the Parameters object.
+            data (dict | Parameters): Data to print as a table
             title (str | None): Title of the table
         """
         if self.__is_quiet:
             return
-        
-        if isinstance(parameters, dict):
-            parameters = Parameters(parameters)
         
         table = Table(
             show_header=False,
@@ -111,7 +130,7 @@ class Output:
             table.title = title
             table.title_style = self.__tables_title_style
         
-        for key, value in parameters:
+        for key, value in data.items():
             bold_key = Text(str(key), style="bold")
             table.add_row(bold_key, str(value))
         
@@ -139,7 +158,6 @@ class Output:
             self.print_if_verbose(f"Completed in {time.time() - start_time:.2f} seconds")
         
         return result
-        
     
     def print_yaml(self, data) -> None:
         """

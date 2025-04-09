@@ -1,10 +1,12 @@
 import sys
 
+from alertalot.actions.sub_actions.load_target import LoadTarget
+from alertalot.actions.sub_actions.load_template import LoadTemplate
+from alertalot.actions.sub_actions.load_variables_file import LoadVariablesFile
 from alertalot.generic.parameters import Parameters
 from alertalot.generic.args_object import ArgsObject
-from alertalot.generic.file_loader import load
-from alertalot.validation.alarms_config_validator import AlarmsConfigValidator
 from alertalot.generic.output import Output
+from alertalot.exception.action_failed_exception import ActionFailedException
 
 
 def execute(run_args: ArgsObject, output: Output):
@@ -31,34 +33,19 @@ def execute(run_args: ArgsObject, output: Output):
         raise ValueError("No template file provided. Missing the --template-file argument.")
     
     if run_args.params_file:
-        parameters.update(Parameters.parse(run_args.params_file, run_args.region))
+        parameters.update(LoadVariablesFile.execute(run_args, output))
     
     if run_args.ec2_id is not None:
-        output.print_if_verbose(f"Loading instance {run_args.ec2_id}...")
-        parameters.update(entity_object.load_resource_values(run_args.ec2_id))
-        output.print_if_verbose()
+        target = LoadTarget.execute(run_args, output)
+        values = entity_object.get_resource_values(target)
+        
+        parameters.update(values)
     
-    alarm_config = load(run_args.template_file)
+    validator = LoadTemplate.execute(run_args, output, parameters)
     
-    validator = AlarmsConfigValidator(
-        entity_object,
-        parameters,
-        alarm_config
-    )
+    if validator is None:
+        raise ActionFailedException()
     
-    if not validator.validate():
-        print("Issues found in the alarms config:")
-        print("---------")
-        print("\n".join(validator.issues))
-        print("---------")
-        
-        sys.exit(1)
-    elif run_args.is_verbose:
-        output.print(f"Total alarms found: {len(validator.parsed_config)}")
-        output.print("Template")
-        output.print("---------")
-        
-        output.print_yaml(validator.parsed_config)
-        
-        output.print("---------")
-        
+    output.print_line()
+    output.print_yaml(validator.parsed_config)
+    

@@ -128,7 +128,7 @@ class AwsAlarmValidator:
         operator = self._config[key]
         
         if operator not in self.VALID_COMPARISON_OPERATORS:
-            self._issues.append(f"<at '{key}'> Invalid comparison operator: '{operator}'.")
+            self._issues.append(f"[\"{key}\"] Invalid comparison operator: '{operator}'.")
         
         return operator
 
@@ -145,7 +145,7 @@ class AwsAlarmValidator:
         statistic = self._config[key]
         
         if statistic not in self.VALID_STATISTICS:
-            self._issues.append(f"<at '{key}'> Invalid statistic: '{statistic}'.")
+            self._issues.append(f"[\"{key}\"] Invalid statistic: '{statistic}'.")
         
         return statistic
 
@@ -160,12 +160,17 @@ class AwsAlarmValidator:
             int: The period in seconds
         """
         period = self._config[key]
-        seconds = str2time(period)
+        
+        try:
+            seconds = str2time(period)
+        except ValueError as e:
+            self._issues.append(f"[\"{key}\"] {e}")
+            return period
         
         if seconds < 60:
-            self._issues.append(f"<at '{key}'> Period must be at least 60 seconds, got {seconds}")
+            self._issues.append(f"[\"{key}\"] Period must be at least 60 seconds, got {seconds}")
         elif seconds % 60 != 0:
-            self._issues.append(f"<at '{key}'> Period must be a multiple of 60 seconds, got {seconds}")
+            self._issues.append(f"[\"{key}\"] Period must be a multiple of 60 seconds, got {seconds}")
         
         return seconds
 
@@ -185,12 +190,12 @@ class AwsAlarmValidator:
             int_value = str2time(periods)
             
             if int_value <= 0:
-                self._issues.append(f"<at '{key}'> Evaluation periods must be positive, got {int_value}")
+                self._issues.append(f"[\"{key}\"] Evaluation periods must be positive, got {int_value}")
             
             return int_value
         
         except ValueError as e:
-            self._issues.append(f"<at '{key}'> Invalid evaluation periods: '{periods}'. {str(e)}.")
+            self._issues.append(f"[\"{key}\"] Invalid evaluation periods: '{periods}'. {str(e)}.")
             
             return 0
 
@@ -207,7 +212,7 @@ class AwsAlarmValidator:
         value = self._config[key]
         
         if value not in self.VALID_MISSING_DATA_TREATMENTS:
-            self._issues.append(f"<at '{key}'> Invalid treat-missing-data value: '{value}'.")
+            self._issues.append(f"[\"{key}\"] Invalid treat-missing-data value: '{value}'.")
         
         return value
 
@@ -230,20 +235,20 @@ class AwsAlarmValidator:
         if isinstance(actions, str):
             actions = [actions]
         elif not isinstance(actions, list):
-            self._issues.append(f"<at '{key}'> Alarm actions must be a string or list, got {type(actions).__name__}")
+            self._issues.append(f"[\"{key}\"] Alarm actions must be a string or list, got {type(actions).__name__}")
             return []
             
         validated_actions = []
         
         for i, action in enumerate(actions):
             if not isinstance(action, str):
-                self._issues.append(f"<at '{key}[{i}]'> Action must be a string (ARN), got {type(action).__name__}")
+                self._issues.append(f"[{key}[{i}]] Action must be a string (ARN), got {type(action).__name__}")
                 continue
                 
             action = self._params.substitute(action)
             
             if not action.startswith("arn:aws:sns:"):
-                self._issues.append(f"<at '{key}[{i}]'> Invalid SNS topic ARN format: '{action}'")
+                self._issues.append(f"[{key}[{i}]] Invalid SNS topic ARN format: '{action}'")
             
             validated_actions.append(action)
             
@@ -265,18 +270,18 @@ class AwsAlarmValidator:
         tags = self._config[key]
         
         if not isinstance(tags, dict):
-            self._issues.append(f"<at '{key}'> Tags must be a dictionary, got {type(tags).__name__}")
+            self._issues.append(f"[\"{key}\"] Tags must be a dictionary, got {type(tags).__name__}")
             return {}
         
         validated_tags = {}
         
         for tag_key, value in tags.items():
             if not isinstance(tag_key, str):
-                self._issues.append(f"<at '{key}'> Tag key must be a string, got '{tag_key}'")
+                self._issues.append(f"[\"{key}\"] Tag key must be a string, got '{tag_key}'")
                 continue
                 
             if len(tag_key) > 128:
-                self._issues.append(f"<at '{key}'> Tag key must be max 128 characters, got {len(tag_key)} characters")
+                self._issues.append(f"[\"{key}\"] Tag key must be max 128 characters, got {len(tag_key)} characters")
             
             validated_tags[tag_key] = self._params.substitute(value)
         
@@ -296,18 +301,18 @@ class AwsAlarmValidator:
         metric_name = self._config[key]
         
         if not isinstance(metric_name, str):
-            self._issues.append(f"<at '{key}'> Metric name must be a non-empty string, "
+            self._issues.append(f"[\"{key}\"] Metric name must be a non-empty string, "
                                 f"got '{type(metric_name).__name__}'")
         
         metric_name = self.__expand_ec2_metric_shortcut(metric_name)
         metric_name = self._params.substitute(metric_name)
         
         if len(metric_name.encode('utf-8')) > 255:
-            self._issues.append(f"<at '{key}'> Metric name exceeds maximum length of 255 bytes: '{metric_name}'")
+            self._issues.append(f"[\"{key}\"] Metric name exceeds maximum length of 255 bytes: '{metric_name}'")
         
         if allowed is not None:
             if metric_name not in allowed:
-                self._issues.append(f"<at '{key}'> Metric '{metric_name}', is not a valid metric name")
+                self._issues.append(f"[\"{key}\"] Metric '{metric_name}', is not a valid metric name")
         
         return metric_name
 
@@ -324,13 +329,13 @@ class AwsAlarmValidator:
         alarm_name = self._config[key]
         
         if not alarm_name or not isinstance(alarm_name, str):
-            self._issues.append(f"<at '{key}'> Alarm name must be a non-empty string, "
+            self._issues.append(f"[\"{key}\"] Alarm name must be a non-empty string, "
                                 f"got '{type(alarm_name).__name__}'")
         
         alarm_name = self._params.substitute(alarm_name)
         
         if len(alarm_name.encode('utf-8')) > 255:
-            self._issues.append(f"<at '{key}'> Alarm name exceeds maximum length of 255 bytes: '{alarm_name}'")
+            self._issues.append(f"[\"{key}\"] Alarm name exceeds maximum length of 255 bytes: '{alarm_name}'")
         
         return alarm_name
 
@@ -355,17 +360,17 @@ class AwsAlarmValidator:
         try:
             threshold = percentage(threshold_value)
         except ValueError as e:
-            self._issues.append(f"<at '{key}'> Error validating threshold: {str(e)}")
+            self._issues.append(f"[\"{key}\"] Error validating threshold: {str(e)}")
             return 0.0
         
         if not isinstance(threshold, (int, float)):
-            self._issues.append(f"<at '{key}'> Threshold must be a number, got {type(threshold).__name__}")
+            self._issues.append(f"[\"{key}\"] Threshold must be a number, got {type(threshold).__name__}")
         else:
             if min_value is not None and threshold < min_value:
-                self._issues.append(f"<at '{key}'> Threshold must be at least {min_value}, got {threshold}")
+                self._issues.append(f"[\"{key}\"] Threshold must be at least {min_value}, got {threshold}")
             
             if max_value is not None and threshold > max_value:
-                self._issues.append(f"<at '{key}'> Threshold must be at most {max_value}, got {threshold}")
+                self._issues.append(f"[\"{key}\"] Threshold must be at most {max_value}, got {threshold}")
             
         return float(threshold)
 
@@ -384,7 +389,7 @@ class AwsAlarmValidator:
         try:
             return str2bytes(size)
         except ValueError as e:
-            self._issues.append(f"<at '{key}'> Error validating byte size: {str(e)}")
+            self._issues.append(f"[\"{key}\"] Error validating byte size: {str(e)}")
             return 0
 
     def validate_unit(self, key: str = "unit") -> str:
@@ -400,7 +405,7 @@ class AwsAlarmValidator:
         unit = self._config[key]
         
         if unit not in self.VALID_UNITS:
-            self._issues.append(f"<at '{key}'> Invalid unit: '{unit}'.")
+            self._issues.append(f"[\"{key}\"] Invalid unit: '{unit}'.")
         
         return unit
     
