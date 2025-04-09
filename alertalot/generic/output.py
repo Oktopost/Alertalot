@@ -44,7 +44,16 @@ class Output:
             with_trace: bool = False,
             spinner_style: str = "bouncingBall",
             tables_style: box = box.MINIMAL):
+        """
+        Initialize the Output formatter.
         
+        Args:
+            is_quiet (bool): If True, only critical messages are displayed
+            is_verbose (bool): If True, all messages including verbose ones are displayed
+            with_trace (bool): If True, full tracebacks are shown for exceptions
+            spinner_style (str): The style of spinner to use for long-running operations
+            tables_style (box): The box style to use for tables
+        """
         self.__is_first_step_printed = False
         
         self.__console = Console()
@@ -88,7 +97,7 @@ class Output:
         
         Args:
             *objects: Objects to print
-            level (OutputLevel):
+            level (OutputLevel): The output level for this message
         """
         if not self.__check_level(level):
             return
@@ -97,9 +106,11 @@ class Output:
         
     def print_step(self, text: str, level: OutputLevel = OutputLevel.VERBOSE) -> None:
         """
+        Print a step separator with the given text.
         
         Args:
-            text (str): Text to print
+            text (str): Text to print as a step heading
+            level (OutputLevel): The output level for this message
         """
         if not self.__check_level(level):
             return
@@ -114,15 +125,43 @@ class Output:
         self.__console.print("")
 
     def print_success(self, *objects: Any, level: OutputLevel = OutputLevel.VERBOSE) -> None:
+        """
+        Print a success message.
+        
+        Args:
+            *objects: Objects to print
+            level (OutputLevel): The output level for this message
+        """
         self.print("[bold green]✓[/bold green]", *objects, level=level)
         
     def print_failure(self, *objects: Any, level: OutputLevel = OutputLevel.VERBOSE) -> None:
+        """
+        Print a failure message.
+        
+        Args:
+            *objects: Objects to print
+            level (OutputLevel): The output level for this message
+        """
         self.print("[bold red]✗[/bold red]", *objects, level=level)
         
     def print_bullet(self, *objects: Any, level: OutputLevel = OutputLevel.VERBOSE) -> None:
+        """
+        Print a bullet point message.
+        
+        Args:
+            *objects: Objects to print
+            level (OutputLevel): The output level for this message
+        """
         self.print("[bold blue]✦[/bold blue]", *objects, level=level)
     
     def print_line(self, level: OutputLevel = OutputLevel.VERBOSE, color: str = "Green") -> None:
+        """
+        Print a horizontal line for visual separation.
+        
+        Args:
+            level (OutputLevel): The output level for this line
+            color (str): The color of the line
+        """
         self.print(Rule(style=color), level=level)
     
     def print_if_verbose(self, *objects: Any) -> None:
@@ -140,6 +179,15 @@ class Output:
             symbol_style: str,
             data: list[str],
             level: OutputLevel = OutputLevel.NORMAL) -> None:
+        """
+        Print a list of items with a custom symbol and styling.
+        
+        Args:
+            symbol (str): The symbol to display before each item
+            symbol_style (str): The style to apply to the symbol
+            data (list[str]): The list of strings to print
+            level (OutputLevel): The output level for this list
+        """
         
         if not self.__check_level(level):
             return
@@ -157,11 +205,12 @@ class Output:
             title: str | None = None,
             level: OutputLevel = OutputLevel.NORMAL) -> None:
         """
-        Print parameters in a formatted table.
+        Print key-value pairs in a formatted table.
         
         Args:
             data (dict | Parameters): Data to print as a table
             title (str | None): Title of the table
+            level (OutputLevel): The output level for this table
         """
         if not self.__check_level(level):
             return
@@ -182,12 +231,14 @@ class Output:
     
     def spinner(self, callback: Callable[[], Any], with_time: bool = True) -> Any:
         """
+        Execute a callback while displaying a spinner animation.
         
         Args:
-            callback (Callable): Callback to execute
-            with_time (bool):
-                If set, print the total time it took to execute the callback. Ignored if
-                verbose mode is disabled AND it took more than 0.001 seconds.
+            callback (Callable): Callback function to execute
+            with_time (bool): If set, print the total time it took to execute the callback
+                
+        Returns:
+            Any: The result of the callback function
         """
         if self.__is_quiet:
             return callback()
@@ -220,6 +271,13 @@ class Output:
         self.__console.print(yaml_syntax)
     
     def print_error(self, exception: Exception, level: OutputLevel = OutputLevel.NORMAL) -> None:
+        """
+        Print an exception, either with a full traceback or just the error message.
+        
+        Args:
+            exception (Exception): The exception to print
+            level (OutputLevel): The output level for this error
+        """
         if not self.__check_level(level):
             return
         
@@ -231,9 +289,21 @@ class Output:
 
     
     def __check_level(self, level: OutputLevel) -> bool:
+        """
+        Check if a message at the given level should be displayed.
+        
+        Args:
+            level (OutputLevel): The level to check
+            
+        Returns:
+            bool: True if the message should be displayed, False otherwise
+        """
         return level.value >= self.__output_level.value
     
-    def __define_output_level(self):
+    def __define_output_level(self) -> None:
+        """
+        Set the output level based on the quiet and verbose flags.
+        """
         if self.__is_quiet:
             self.__output_level = OutputLevel.QUITE
         elif self.__is_verbose:
