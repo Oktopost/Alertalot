@@ -1,4 +1,4 @@
-from alertalot.generic.output import Output
+from alertalot.generic.output import Output, OutputLevel
 from alertalot.generic.parameters import Parameters
 from alertalot.generic.file_loader import load
 from alertalot.generic.args_object import ArgsObject
@@ -22,9 +22,7 @@ class LoadTemplateAction:
         
         output.print_step(f"Loading template file {run_args.template_file}...")
         output.print_bullet("Using Variables:")
-        
-        if output.is_verbose:
-            output.print_key_value(parameters)
+        output.print_key_value(parameters)
         
         alarm_config = load(run_args.template_file)
     

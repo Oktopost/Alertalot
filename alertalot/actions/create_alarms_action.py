@@ -1,11 +1,12 @@
-import sys
-import boto3
+import time
 
+from actions.sub_actions.create_alarm_action import CreateAlarmAction
+from actions.sub_actions.load_target_action import LoadTargetAction
+from actions.sub_actions.load_template_action import LoadTemplateAction
+from actions.sub_actions.load_variables_file_action import LoadVariablesFileAction
+
+from alertalot.generic.output import Output, OutputLevel
 from alertalot.generic.args_object import ArgsObject
-from alertalot.generic.file_loader import load
-from alertalot.generic.parameters import Parameters
-from alertalot.generic.output import Output
-from alertalot.validation.alarms_config_validator import AlarmsConfigValidator
 
 
 def execute(run_args: ArgsObject, output: Output):
@@ -20,76 +21,26 @@ def execute(run_args: ArgsObject, output: Output):
     if run_args.params_file is None:
         raise ValueError("No parameters file provided")
     if run_args.ec2_id is None:
-        raise ValueError("Target must be provided. Missing --instance-id argument.")
+        raise ValueError("Target must be provided. Missing --ec2-id argument.")
 
-    parameters = Parameters()
-    entity_object = run_args.get_aws_entity()
-
-    parameters.update(Parameters.parse(run_args.params_file, run_args.region))
-
-    output.print_if_verbose(f"Loading instance {run_args.ec2_id}...")
-    parameters.update(entity_object.load_resource_values(run_args.ec2_id))
-    output.print_if_verbose()
-
-    alarm_config = load(run_args.template_file)
-
-    validator = AlarmsConfigValidator(
-        entity_object,
-        parameters,
-        alarm_config
-    )
-
-    if not validator.validate():
-        print("Issues found in the alarms config:")
-        print("---------")
-        print("\n".join(validator.issues))
-        print("---------")
-
-        sys.exit(1)
-
+    # 1. Load variables file
+    parameters = LoadVariablesFileAction.execute(run_args, output)
+    
+    # 2. Load the target object
+    LoadTargetAction.execute(run_args, output, parameters)
+    
+    # 3. Load and validate alarms config
+    validator = LoadTemplateAction.execute(run_args, output, parameters)
+    
+    # 4. Create the alarms.
+    start_time = time.time()
+    
     for config in validator.parsed_config:
-
-        cloudwatch_config = {
-            "AlarmName": config["alarm-name"],
-            "ComparisonOperator": config["comparison-operator"],
-            "EvaluationPeriods": config["evaluation-periods"],
-            "MetricName": config["metric-name"],
-            "Namespace": "AWS/EC2",
-            "Period": config["period"],
-            "Statistic": config["statistic"],
-            "Threshold": config["threshold"] * 100,
-            "ActionsEnabled": False,
-            "Dimensions": [{
-                "Name": "InstanceId",
-                "Value": run_args.ec2_id
-            }]
-        }
-
-        if "alarm-actions" in config:
-            cloudwatch_config["ActionsEnabled"] = True
-            cloudwatch_config["AlarmActions"] = config["alarm-actions"]
-
-        if "treat-missing-data" in config:
-            cloudwatch_config["TreatMissingData"] = config["treat-missing-data"]
-
-        if "unit" in config:
-            cloudwatch_config["Unit"] = config["unit"]
-
-        if "tags" in config:
-            tags_dict = config.get("tags", {})
-            cloudwatch_config["Tags"] = [{"Key": key, "Value": value} for key, value in tags_dict.items()]
-
-        if run_args.is_verbose:
-            output.print("Creating alarm:")
-            output.print("---------")
-
-            output.print_yaml(cloudwatch_config)
-
-            output.print("---------")
-
-        cloudwatch = boto3.client('cloudwatch')
-        cloudwatch.put_metric_alarm(**cloudwatch_config)
-
-        if run_args.is_verbose:
-            output.print("Alarm Created")
-
+        CreateAlarmAction.execute(output, config, run_args.ec2_id)
+    
+    runtime = time.time() - start_time
+    
+    # 5. Output success
+    output.print_step("All alarms created")
+    output.print_bullet(f"Total {len(validator.parsed_config)} alarms created", level=OutputLevel.NORMAL)
+    output.print_bullet(f"In {runtime:.2f} seconds")

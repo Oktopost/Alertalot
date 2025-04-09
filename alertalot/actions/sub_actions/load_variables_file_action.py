@@ -17,12 +17,10 @@ class LoadVariablesFileAction:
             raise ValueError("No variables file provided")
         
         output.print_step("Loading variables file...")
-        
-        if output.is_verbose:
-            output.print_key_value({
-                "Region": run_args.region,
-                "Variables File": run_args.params_file,
-            })
+        output.print_key_value({
+            "Region": run_args.region,
+            "Variables File": run_args.params_file,
+        })
         
         data = Parameters.parse(run_args.params_file, run_args.region)
         

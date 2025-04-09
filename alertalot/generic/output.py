@@ -203,7 +203,7 @@ class Output:
             self,
             data: dict | Parameters,
             title: str | None = None,
-            level: OutputLevel = OutputLevel.NORMAL) -> None:
+            level: OutputLevel = OutputLevel.VERBOSE) -> None:
         """
         Print key-value pairs in a formatted table.
         

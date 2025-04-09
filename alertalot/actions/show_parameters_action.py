@@ -1,6 +1,6 @@
 from alertalot.actions.sub_actions.load_variables_file_action import LoadVariablesFileAction
 from alertalot.generic.args_object import ArgsObject
-from alertalot.generic.output import Output
+from alertalot.generic.output import Output, OutputLevel
 
 
 def execute(run_args: ArgsObject, output: Output):
@@ -17,4 +17,4 @@ def execute(run_args: ArgsObject, output: Output):
     variables = LoadVariablesFileAction.execute(run_args, output)
     
     output.print_step(f"Variables:")
-    output.print_key_value(variables)
+    output.print_key_value(variables, level=OutputLevel.NORMAL)
