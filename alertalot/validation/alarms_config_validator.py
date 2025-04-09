@@ -68,6 +68,26 @@ class AlarmsConfigValidator:
     
     
     def validate(self) -> bool:
+        """
+        Validates the alarm configuration and populates parsed_config with processed alarms.
+        
+        Performs validation in multiple stages:
+        1. Validates the basic structure of the alarms configuration
+        2. For each alarm entry:
+           - Validates it has the correct type
+           - Validates required and optional keys
+           - Validates alarm-specific properties using the entity validator
+        3. Collects validation issues for reporting
+        
+        This method is idempotent and can be called multiple times without side effects.
+        After validation, any issues found are available through the `issues` property.
+        
+        Returns:
+            bool: True if configuration is valid, False otherwise
+        """
+        self._parsed_config = None
+        self._issues = []
+        
         self.__validate_alarms_list()
         
         if self.has_issues:

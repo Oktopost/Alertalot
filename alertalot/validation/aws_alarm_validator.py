@@ -58,8 +58,8 @@ class AwsAlarmValidator:
         Initialize the AWS Alarm Validator.
         
         Args:
-            parameters (Parameters): Parameters to use for value resolution
             config (dict[str, Any]): Dictionary containing the alarm configuration
+            parameters (Parameters): Parameters to use for value resolution
         """
         self._params = parameters
         self._config = config
@@ -89,7 +89,7 @@ class AwsAlarmValidator:
     @property
     def issues_found(self) -> bool:
         """
-        Are any issues during validation were found.
+        Check if any issues were found during validation.
         
         Returns:
             bool: True if any issues were found
@@ -100,6 +100,9 @@ class AwsAlarmValidator:
     def validate_required_keys(self, required_keys: list[str]) -> None:
         """
         Validates that all required keys are present in the configuration.
+        
+        Args:
+            required_keys (list[str]): List of keys that must be present in the configuration
         """
         for key in required_keys:
             if key not in self._config:
@@ -109,18 +112,22 @@ class AwsAlarmValidator:
     def validate_unknown_keys(self, required_keys: list[str], optional_keys: list[str]) -> None:
         """
         Validates that there are no unknown keys in the configuration.
+        
+        Args:
+            required_keys (list[str]): List of keys that must be present
+            optional_keys (list[str]): List of keys that may be present
         """
         for key in self._config:
             if key not in optional_keys and key not in required_keys:
                 self._issues.append(f"Unknown key '{key}' in EC2 alarm configuration")
     
     
-    def validate_comparison_operator(self, key: str = "comparison-operator") -> Any:
+    def validate_comparison_operator(self, key: str = "comparison-operator") -> str:
         """
         Validates that the comparison operator is one of the allowed values.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "comparison-operator".
+            key (str): The key in the config dictionary. Defaults to "comparison-operator"
             
         Returns:
             str: The validated comparison operator
@@ -132,12 +139,12 @@ class AwsAlarmValidator:
         
         return operator
 
-    def validate_statistic(self, key: str = "statistic") -> Any:
+    def validate_statistic(self, key: str = "statistic") -> str:
         """
         Validates that the statistic is one of the allowed values.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "statistic".
+            key (str): The key in the config dictionary. Defaults to "statistic"
             
         Returns:
             str: The validated statistic
@@ -149,12 +156,12 @@ class AwsAlarmValidator:
         
         return statistic
 
-    def validate_period(self, key: str = "period") -> Any:
+    def validate_period(self, key: str = "period") -> int:
         """
         Validates and converts a period string to seconds.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "period".
+            key (str): The key in the config dictionary. Defaults to "period"
             
         Returns:
             int: The period in seconds
@@ -179,7 +186,7 @@ class AwsAlarmValidator:
         Validates the evaluation periods value.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "evaluation-periods".
+            key (str): The key in the config dictionary. Defaults to "evaluation-periods".
             
         Returns:
             int: The number of evaluation periods
@@ -204,7 +211,7 @@ class AwsAlarmValidator:
         Validates the treat-missing-data option.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "treat-missing-data".
+            key (str): The key in the config dictionary. Defaults to "treat-missing-data".
             
         Returns:
             str: The validated treat-missing-data value
@@ -222,7 +229,7 @@ class AwsAlarmValidator:
         Supports both a single string and a list of strings.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "alarm-actions".
+            key (str): The key in the config dictionary. Defaults to "alarm-actions".
             
         Returns:
             list[str]: The validated list of SNS topic ARNs
@@ -263,7 +270,7 @@ class AwsAlarmValidator:
         Validates alarm tags.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "tags".
+            key (str): The key in the config dictionary. Defaults to "tags".
             
         Returns:
             dict[str, str]: Validated tags dictionary
@@ -299,7 +306,7 @@ class AwsAlarmValidator:
         Validates a CloudWatch metric name.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "metric-name".
+            key (str): The key in the config dictionary. Defaults to "metric-name".
             allowed (list[str] | None): Allowed metric names. If not set, any name will be accepted.
             
         Returns:
@@ -333,7 +340,7 @@ class AwsAlarmValidator:
         Validates a CloudWatch alarm name.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "alarm-name".
+            key (str): The key in the config dictionary. Defaults to "alarm-name".
             
         Returns:
             str: The validated alarm name
@@ -356,17 +363,17 @@ class AwsAlarmValidator:
         return alarm_name
 
     def validate_threshold(
-            self, 
-            key: str = "threshold", 
+            self,
+            key: str = "threshold",
             min_value: float | None = None,
             max_value: float | None = None) -> float:
         """
         Validates a numeric threshold value within specified bounds.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "threshold".
-            min_value (float, optional): Minimum allowed value (inclusive). Defaults to None.
-            max_value (float, optional): Maximum allowed value (inclusive). Defaults to None.
+            key (str): The key in the config dictionary. Defaults to "threshold"
+            min_value (float): Minimum allowed value (inclusive). Defaults to None
+            max_value (float): Maximum allowed value (inclusive). Defaults to None
             
         Returns:
             float: The validated threshold value
@@ -395,7 +402,7 @@ class AwsAlarmValidator:
         Validates and converts a byte size string to bytes.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "size".
+            key (str): The key in the config dictionary. Defaults to "size".
             
         Returns:
             int: Size in bytes
@@ -413,7 +420,7 @@ class AwsAlarmValidator:
         Validates that the unit is a valid CloudWatch metric unit.
         
         Args:
-            key (str, optional): The key in the config dictionary. Defaults to "unit".
+            key (str): The key in the config dictionary. Defaults to "unit".
             
         Returns:
             str: The validated unit
@@ -431,10 +438,10 @@ class AwsAlarmValidator:
         Check if the metric name is written in the shortcut format and if so expand it to the correct format.
         
         Args:
-            metric_name (str): The metric name to expand, if necessary.
+            metric_name (str): The metric name to expand, if necessary
 
         Returns:
-            str: The expanded metric name or the original name if not a shortcut.
+            str: The expanded metric name or the original name if not a shortcut
         """
         shortcuts = {
             "cpu": "CPUUtilization",
