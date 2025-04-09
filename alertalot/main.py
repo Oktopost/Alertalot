@@ -40,12 +40,6 @@ def __create_args_object() -> argparse.ArgumentParser:
         default="us-east-1")
     
     parser.add_argument(
-        "--dry-run",
-        type=bool,
-        help="Simulate the requests without executing them",
-        default=False)
-    
-    parser.add_argument(
         "--trace",
         action="store_true",
         dest="trace",

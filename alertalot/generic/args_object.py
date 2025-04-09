@@ -36,16 +36,6 @@ class ArgsObject:
         return self.__args.quiet
     
     @property
-    def is_dry_run(self) -> bool:
-        """
-        If set, do not execute any updates, just simulate them.
-        
-        Returns:
-            bool: True if the dry run flag is set.
-        """
-        return self.__args.dry_run
-    
-    @property
     def show_variables(self) -> bool:
         """
         If set, execute the show variables action
