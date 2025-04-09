@@ -1,10 +1,9 @@
 import time
 
-from actions.sub_actions.create_alarm_action import CreateAlarmAction
-from actions.sub_actions.load_target_action import LoadTargetAction
-from actions.sub_actions.load_template_action import LoadTemplateAction
-from actions.sub_actions.load_variables_file_action import LoadVariablesFileAction
-
+from alertalot.actions.sub_actions.create_alarm_action import CreateAlarmAction
+from alertalot.actions.sub_actions.load_target_action import LoadTargetAction
+from alertalot.actions.sub_actions.load_template_action import LoadTemplateAction
+from alertalot.actions.sub_actions.load_variables_file_action import LoadVariablesFileAction
 from alertalot.generic.output import Output, OutputLevel
 from alertalot.generic.args_object import ArgsObject
 
