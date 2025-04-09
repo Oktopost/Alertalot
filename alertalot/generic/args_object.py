@@ -74,7 +74,17 @@ class ArgsObject:
             bool: True if the flag is set.
         """
         return self.__args.show_template
-    
+
+    @property
+    def create_alarms(self) -> bool:
+        """
+        If set, load the alarms template file, validate it and creates alarms for it
+
+        Returns:
+            bool: True if the flag is set.
+        """
+        return self.__args.create_alarms
+
     @property
     def test_aws(self) -> bool:
         """

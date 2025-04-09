@@ -5,6 +5,7 @@ from alertalot.generic.args_object import ArgsObject
 
 from alertalot.actions import show_parameters_action
 from alertalot.actions import show_alarms_template_action
+from alertalot.actions import create_alarms_action
 from alertalot.actions import show_target_action
 from alertalot.actions import aws_test_action
 from alertalot.generic.output import Output
@@ -88,6 +89,16 @@ def __parse_args() -> ArgsObject:
              "If a region or aws resource are provided, parameters defined for that region and aws resource"
              "with those in the global list.",
         default=False)
+
+    actions_group.add_argument(
+        "--create-alarms",
+        action="store_true",
+        help="If specified, loads the alarms template file, performance validations, and creates alarms for it. "
+             "If a region or aws resource are provided, parameters defined for that region and aws resource"
+             "with those in the global list.",
+        default=False)
+
+
     
     return ArgsObject(parser.parse_args())
 
@@ -101,7 +112,8 @@ def __execute(args_object: ArgsObject, output: Output) -> None:
         show_target_action.execute(args_object, output)
     elif args_object.show_template:
         show_alarms_template_action.execute(args_object, output)
-
+    elif args_object.create_alarms:
+        create_alarms_action.execute(args_object, output)
 
 if __name__ == "__main__":
     args_object = __parse_args()
