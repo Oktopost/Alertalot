@@ -49,15 +49,6 @@ def execute(run_args: ArgsObject, output: Output):
 
     for config in validator.parsed_config:
 
-        if run_args.is_verbose:
-            output.print(f"Total alarms found: {len(validator.parsed_config)}")
-            output.print("Template")
-            output.print("---------")
-
-            output.print_yaml(config)
-
-            output.print("---------")
-
         cloudwatch_config = {
             "AlarmName": config["alarm-name"],
             "ComparisonOperator": config["comparison-operator"],
