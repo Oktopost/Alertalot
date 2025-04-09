@@ -7,9 +7,9 @@ import jsonschema
 from alertalot.generic.file_loader import load
 
 
-class Parameters:
+class Variables:
     """
-    Container for parameters used to generate an alert configuration from the config file.
+    Container for variables used to generate an alert configuration from the config file.
     """
     
     # Extract values like $INSTANCE_ID from a parameter string
@@ -62,9 +62,9 @@ class Parameters:
         Add new attributes. Override any existing.
         
         Args:
-            values (dict | Parameters): The attributes to add.
+            values (dict | Variables): The attributes to add.
         """
-        if isinstance(values, Parameters):
+        if isinstance(values, Variables):
             self.__arguments.update(values.__arguments)
         elif isinstance(values, dict):
             self.__arguments.update(values)
@@ -96,7 +96,7 @@ class Parameters:
         
         return re.sub(self.__VARIABLE_REGEX, replace_match, text)
     
-    def merge(self, values: dict) -> "Parameters":
+    def merge(self, values: dict) -> "Variables":
         """
         Creates and returns a new Parameters object by merging the values of this instance
         with those from the given dictionary.
@@ -106,11 +106,11 @@ class Parameters:
                 Additional values to merge.
     
         Returns:
-            Parameters: A new instance containing parameters from both this instance
+            Variables: A new instance containing parameters from both this instance
                 and the provided dictionary.  
         """
         
-        params = Parameters()
+        params = Variables()
         
         params.update(self.__arguments)
         params.update(values)
@@ -120,7 +120,7 @@ class Parameters:
     
     
     @staticmethod
-    def parse(file: str, region: str | None = None) -> "Parameters":
+    def parse(file: str, region: str | None = None) -> "Variables":
         """
         Parse a params file and return the Parameters object for it.
         
@@ -130,9 +130,9 @@ class Parameters:
                 If set, the configuration of the region will be also loaded and merged into the global config.
         
         Returns:
-            Parameters: the parameters set, loaded from the file
+            Variables: the parameters set, loaded from the file
         """
-        params = Parameters()
+        params = Variables()
         parsed = load(file)
         
         current_file_directory = os.path.dirname(os.path.abspath(__file__))

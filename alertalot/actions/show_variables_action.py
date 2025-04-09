@@ -5,14 +5,14 @@ from alertalot.generic.output import Output, OutputLevel
 
 def execute(run_args: ArgsObject, output: Output):
     """
-    Load and print the parameters.
+    Load and print the variables file.
     
     Args:
         run_args (ArgsObject): CLI command line arguments
         output (Output): Output object to use
     """
-    if run_args.params_file is None:
-        raise ValueError("No parameters file provided")
+    if run_args.vars_file is None:
+        raise ValueError("No variables file provided")
     
     variables = LoadVariablesFileAction.execute(run_args, output)
     

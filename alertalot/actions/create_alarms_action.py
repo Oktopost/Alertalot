@@ -10,26 +10,27 @@ from alertalot.generic.args_object import ArgsObject
 
 def execute(run_args: ArgsObject, output: Output):
     """
-    Create the alarms for an entity
-    Currently supports only AWS/EC2 namespaced metrics
+    Create the alarms for an entity.
+    
+    Currently, supports only AWS/EC2 namespaced metrics
     
     Args:
         run_args (ArgsObject): CLI command line arguments
         output (Output): Output object to use
     """
-    if run_args.params_file is None:
+    if run_args.vars_file is None:
         raise ValueError("No parameters file provided")
     if run_args.ec2_id is None:
         raise ValueError("Target must be provided. Missing --ec2-id argument.")
 
     # 1. Load variables file
-    parameters = LoadVariablesFileAction.execute(run_args, output)
+    vars = LoadVariablesFileAction.execute(run_args, output)
     
     # 2. Load the target object
-    LoadTargetAction.execute(run_args, output, parameters)
+    LoadTargetAction.execute(run_args, output, vars)
     
     # 3. Load and validate alarms config
-    validator = LoadTemplateAction.execute(run_args, output, parameters)
+    validator = LoadTemplateAction.execute(run_args, output, vars)
     
     # 4. Create the alarms.
     start_time = time.time()

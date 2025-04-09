@@ -1,10 +1,10 @@
 import pytest
 
-from alertalot.generic.parameters import *
+from alertalot.generic.variables import *
 
 
 def test__contains__empty_set():
-    params = Parameters()
+    params = Variables()
     
     assert ("abc" in params) is False
     assert ("b" in params) is False
@@ -12,7 +12,7 @@ def test__contains__empty_set():
     
 
 def test__contains__not_empty_set():
-    params = Parameters()
+    params = Variables()
     
     params.update({"a": 1, "abc": "21"})
     
@@ -26,7 +26,7 @@ def test__contains__not_empty_set():
 
 
 def test__getitem__():
-    params = Parameters()
+    params = Variables()
     
     params.update({"a": 1, "abc": "21"})
     
@@ -38,7 +38,7 @@ def test__getitem__():
 
     
 def test__update__pass_none():
-    params = Parameters()
+    params = Variables()
     
     params.update({"a": "b"})
     
@@ -48,7 +48,7 @@ def test__update__pass_none():
 
 
 def test__update__pass_override_values():
-    params = Parameters()
+    params = Variables()
     
     params.update({"a": "b", "c": "d"})
     
@@ -62,7 +62,7 @@ def test__update__pass_override_values():
 
 
 def test__update__pass_new_values():
-    params = Parameters()
+    params = Variables()
     
     params.update({"a": "b"})
     
@@ -76,10 +76,10 @@ def test__update__pass_new_values():
 
 
 def test__update__pass_parameters_object():
-    params1 = Parameters()
+    params1 = Variables()
     params1.update({"a": "b", "c": "d"})
     
-    params2 = Parameters()
+    params2 = Variables()
     params2.update({"e": "f", "c": "g"})
     
     params1.update(params2)
@@ -90,7 +90,7 @@ def test__update__pass_parameters_object():
 
 
 def test__substitute_variables():
-    parameters = Parameters()
+    parameters = Variables()
     parameters.update({"INSTANCE_ID": 123, "REGION": "us-east-1", "SERVICE": "backend"})
     
     assert parameters.substitute("") == ""
@@ -107,7 +107,7 @@ def test__substitute_variables():
 
 
 def test__substitute_variables__not_found():
-    parameters = Parameters()
+    parameters = Variables()
     parameters.update({"INSTANCE_ID": 123, "REGION": "us-east-1", "SERVICE": "backend"})
     
     with pytest.raises(KeyError, match="Variable 'UNKNOWN' not found in parameters."):
@@ -118,7 +118,7 @@ def test__substitute_variables__not_found():
 
 
 def test__substitute_variables__empty_set():
-    parameters = Parameters()
+    parameters = Variables()
     
     with pytest.raises(KeyError, match="Variable 'SERVICE' not found in parameters."):
         parameters.substitute("$SERVICE")

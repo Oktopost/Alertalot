@@ -71,19 +71,3 @@ class BaseAwsEntity(ABC):
             list[str]: List of optional alarm keys
         """
         pass
-    
-    
-    def load_resource_values(self, id: str) -> dict[str, str]:
-        """
-        Convenience method that loads an entity by ID and extracts its resource values.
-        
-        This method combines load_entity and get_resource_values operations to simplify
-        resource value extraction directly from an entity ID.
-        
-        Args:
-            id (str): The identifier of the entity to load
-            
-        Returns:
-            dict[str, str]: Extracted values keyed by placeholder names
-        """
-        return self.get_resource_values(self.load_entity(id))

@@ -1,37 +1,37 @@
 from typing import Any
 
-from alertalot.generic.parameters import Parameters
+from alertalot.generic.variables import Variables
 from alertalot.entities.base_aws_entity import BaseAwsEntity
 from alertalot.validation.aws_alarm_validator import AwsAlarmValidator
 
 
 class AlarmsConfigValidator:
     """
-    Validates alarm configurations against entity requirements and parameters.
+    Validates alarm configurations against entity requirements and variables.
     
     This class validates that alarm configurations follow the required structure and contain
-    all required keys specific to the entity type. It also handles parameter substitution
+    all required keys specific to the entity type. It also handles variables substitution
     and creates validated alarm configurations.
     """
     
     def __init__(
             self,
             entity: BaseAwsEntity,
-            parameters: Parameters,
+            vars: Variables,
             config: dict[str, Any] | Any) -> None:
         """
         Initialize the alarms configuration validator.
         
         Args:
             entity (BaseAwsEntity): The AWS entity that will be used to validate entity-specific alarm configurations
-            parameters (Parameters): Parameters object used for variable substitution in alarm configurations
+            vars (Variables): Parameters object used for variable substitution in alarm configurations
             config (dict[str, Any] | Any): The raw alarm configuration to validate
         """
-        self._entity = entity
-        self._parameters = parameters
-        self._config = config
-        self._parsed_config = None
-        self._issues = []
+        self.__entity = entity
+        self.__vars = vars
+        self.__config = config
+        self.__parsed_config = None
+        self.__issues = []
     
     
     @property
@@ -42,7 +42,7 @@ class AlarmsConfigValidator:
         Returns:
             bool: True if any issues found.
         """
-        return bool(self._issues)
+        return bool(self.__issues)
     
     @property
     def issues(self) -> list[str]:
@@ -52,7 +52,7 @@ class AlarmsConfigValidator:
         Returns:
             The list of issues found.
         """
-        return self._issues
+        return self.__issues
     
     @property
     def parsed_config(self) -> dict[str, Any] | None:
@@ -64,7 +64,7 @@ class AlarmsConfigValidator:
             dict[str, Any]: Parsed and valid config
             None: if the validation failed or not called.
         """
-        return self._parsed_config
+        return self.__parsed_config
     
     
     def validate(self) -> bool:
@@ -85,15 +85,15 @@ class AlarmsConfigValidator:
         Returns:
             bool: True if configuration is valid, False otherwise
         """
-        self._parsed_config = None
-        self._issues = []
+        self.__parsed_config = None
+        self.__issues = []
         
         self.__validate_alarms_list()
         
         if self.has_issues:
             return False
         
-        alarms = self._config['alarms']
+        alarms = self.__config['alarms']
         parsed_config = []
         
         for i, alarm_config in enumerate(alarms):
@@ -102,24 +102,24 @@ class AlarmsConfigValidator:
             
             parsed_alarm_config = {}
             
-            validator = AwsAlarmValidator(alarm_config, self._parameters)
+            validator = AwsAlarmValidator(alarm_config, self.__vars)
             
-            validator.validate_required_keys(self._entity.get_required_alarm_keys())
+            validator.validate_required_keys(self.__entity.get_required_alarm_keys())
             validator.validate_unknown_keys(
-                self._entity.get_required_alarm_keys(),
-                self._entity.get_optional_alarm_keys())
+                self.__entity.get_required_alarm_keys(),
+                self.__entity.get_optional_alarm_keys())
             
             if not validator.issues_found:
-                parsed_alarm_config = self._entity.validate_alarm(validator)
+                parsed_alarm_config = self.__entity.validate_alarm(validator)
             
             if validator.issues_found:
                 for issue in validator.issues:
-                    self._issues.append(f"[\"alarms\"][{i}]{issue}")
+                    self.__issues.append(f"[\"alarms\"][{i}]{issue}")
             else:
                 parsed_config.append(parsed_alarm_config)
             
         if not self.has_issues:
-            self._parsed_config = parsed_config
+            self.__parsed_config = parsed_config
         
         return not self.has_issues
     
@@ -128,14 +128,14 @@ class AlarmsConfigValidator:
         """
         Validates the alarms list top level object types.
         """
-        if "alarms" not in self._config:
-            self._issues.append("Missing 'alarms' key in configuration")
+        if "alarms" not in self.__config:
+            self.__issues.append("Missing 'alarms' key in configuration")
             return
         
-        alarms_list = self._config["alarms"]
+        alarms_list = self.__config["alarms"]
         
         if not isinstance(alarms_list, list):
-            self._issues.append(f"Alarms configuration must be a list, got {type(alarms_list).__name__}")
+            self.__issues.append(f"Alarms configuration must be a list, got {type(alarms_list).__name__}")
     
     def __validate_alarm_entry_type(self, alarm_entry: Any, index: int) -> bool:
         """
@@ -149,7 +149,7 @@ class AlarmsConfigValidator:
             bool: True if an alarm entry has the correct type and structure.
         """
         if not isinstance(alarm_entry, dict):
-            self._issues.append(f"Alarm entry at index {index} must be a dictionary, got {type(alarm_entry).__name__}")
+            self.__issues.append(f"Alarm entry at index {index} must be a dictionary, got {type(alarm_entry).__name__}")
             return False
         
         return True

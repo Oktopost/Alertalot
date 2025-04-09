@@ -16,7 +16,7 @@ from rich.spinner import Spinner
 from rich.console import Console
 from rich.traceback import Traceback
 
-from alertalot.generic.parameters import Parameters
+from alertalot.generic.variables import Variables
 
 
 class OutputLevel(Enum):
@@ -201,14 +201,14 @@ class Output:
     
     def print_key_value(
             self,
-            data: dict | Parameters,
+            data: dict|Variables,
             title: str | None = None,
             level: OutputLevel = OutputLevel.VERBOSE) -> None:
         """
         Print key-value pairs in a formatted table.
         
         Args:
-            data (dict | Parameters): Data to print as a table
+            data (dict | Variables): Data to print as a table
             title (str | None): Title of the table
             level (OutputLevel): The output level for this table
         """

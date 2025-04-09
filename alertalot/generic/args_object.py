@@ -46,19 +46,19 @@ class ArgsObject:
         return self.__args.dry_run
     
     @property
-    def show_parameters(self) -> bool:
+    def show_variables(self) -> bool:
         """
-        If set, execute the show parameters action
+        If set, execute the show variables action
         
         Returns:
             bool: True if the flag is set.
         """
-        return self.__args.show_parameters
+        return self.__args.show_variables
     
     @property
     def show_target(self) -> bool:
         """
-        If set, execute the show instance action
+        If set, execute the show target action
         
         Returns:
             bool: True if the flag is set.
@@ -105,13 +105,14 @@ class ArgsObject:
         return self.__args.trace
     
     @property
-    def params_file(self) -> str | None:
+    def vars_file(self) -> str|None:
         """
-        Path to the parameters file to load.
+        Path to the variables file to load.
+        
         Returns:
             str | None: The path to the file, or None if not provided
         """
-        return self.__args.params_file
+        return self.__args.vars_file
     
     @property
     def template_file(self) -> str | None:

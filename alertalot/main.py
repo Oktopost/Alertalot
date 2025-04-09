@@ -2,7 +2,7 @@ import sys
 import argparse
 
 
-from alertalot.actions import show_parameters_action
+from alertalot.actions import show_variables_action
 from alertalot.actions import show_alarms_template_action
 from alertalot.actions import create_alarms_action
 from alertalot.actions import show_target_action
@@ -25,7 +25,12 @@ def __create_args_object() -> argparse.ArgumentParser:
                     "AWS resources based on predefined config")
     
     parser.add_argument("--ec2-id", type=str, help="ID of an EC2 instance to generate the alerts for")
-    parser.add_argument("--params-file", type=str, help="Relative path to the parameters file to use")
+    
+    parser.add_argument(
+        "--vars-file", "--variables-file",
+        type=str,
+        help="Relative path to the variables file to use")
+    
     parser.add_argument("--template-file", type=str, help="Relative path to the template file to use")
     
     parser.add_argument(
@@ -73,15 +78,15 @@ def __create_args_object() -> argparse.ArgumentParser:
         "--create-alarms", "--create", "-c",
         action="store_true",
         help="If specified, loads the alarms template file, performance validations, and creates alarms for it. "
-             "If a region or aws resource are provided, parameters defined for that region and aws resource"
+             "If a region or aws resource are provided, variables defined for that region and aws resource"
              "with those in the global list.",
         default=False)
     
     actions_group.add_argument(
-        "--show-parameters", "--show-params",
+        "--show-variables", "--show-vars",
         action="store_true",
-        help="If specified, only loads the parameters.yaml file and outputs the result. "
-             "If a region is provided, parameters defined for that region will be merged "
+        help="If specified, only loads the variables.yaml file and outputs the result. "
+             "If a region is provided, variables defined for that region will be merged "
              "with those in the global list.",
         default=False)
     
@@ -95,7 +100,7 @@ def __create_args_object() -> argparse.ArgumentParser:
         "--show-template",
         action="store_true",
         help="If specified, only loads the alarms template file, performance validations, and outputs the result. "
-             "If a region or aws resource are provided, parameters defined for that region and aws resource"
+             "If a region or aws resource are provided, variables defined for that region and aws resource"
              "with those in the global list.",
         default=False)
     
@@ -117,8 +122,8 @@ def __parse_args() -> ArgsObject:
 
 
 def __execute(args_object: ArgsObject, output: Output) -> None:
-    if args_object.show_parameters:
-        show_parameters_action.execute(args_object, output)
+    if args_object.show_variables:
+        show_variables_action.execute(args_object, output)
     elif args_object.test_aws:
         aws_test_action.execute(args_object, output)
     elif args_object.show_target:

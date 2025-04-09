@@ -13,7 +13,7 @@ class CreateAlarmAction:
             entity_id: str
     ) -> None:
         """
-        Load the target instance by its ID
+        Create a single Alarm for an entity
         
         Args:
             output (Output): Output object to use

@@ -2,19 +2,19 @@ from typing import Any
 
 from alertalot.generic.output import Output
 from alertalot.generic.args_object import ArgsObject
-from alertalot.generic.parameters import Parameters
+from alertalot.generic.variables import Variables
 
 
 class LoadTargetAction:
     @staticmethod
-    def execute(run_args: ArgsObject, output: Output, variables: Parameters | None = None) -> dict[str, Any]:
+    def execute(run_args: ArgsObject, output: Output, variables: Variables|None = None) -> dict[str, Any]:
         """
         Load the target instance by its ID
         
         Args:
             run_args (ArgsObject): CLI command line arguments.
             output (Output): Output object to use.
-            variables (Parameters | None): Variables object to update, if passed.
+            variables (Variables | None): Variables object to update, if passed.
         """
         entity_object = run_args.get_aws_entity()
         
