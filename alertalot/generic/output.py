@@ -1,10 +1,9 @@
 """Output formatting utilities."""
 from enum import Enum
-
-import yaml
-import time
-
 from typing import Any, Callable
+
+import time
+import yaml
 
 from rich import box
 from rich.text import Text
@@ -37,8 +36,26 @@ class OutputLevel(Enum):
 
 
 class Output:
-    def __init__(
+    """
+    Terminal output formatting utility with support for different verbosity levels,
+    styled messages, spinners, tables, and error handling. Provides consistent output
+    styling throughout the application.
+    
+    Usage:
+        output = Output(is_quiet=False, is_verbose=True)
+        output.print("Regular message")
+        output.print_success("Operation completed successfully")
+        output.print_step("Starting data processing")
+        
+        # Execute a function with a spinner animation
+        result = output.spinner(lambda: process_large_dataset())
+        
+        # Display structured data
+        output.print_key_value({"name": "value", "status": "active"}, title="Configuration")
+    """
+    def __init__(  # pylint: disable=too-many-arguments
             self,
+            *,
             is_quiet: bool = False,
             is_verbose: bool = False,
             with_trace: bool = False,

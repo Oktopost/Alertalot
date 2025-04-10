@@ -53,15 +53,15 @@ class AwsAlarmValidator:
     ]
     
     
-    def __init__(self, config: dict[str, Any], vars: Variables):
+    def __init__(self, config: dict[str, Any], variables: Variables):
         """
         Initialize the AWS Alarm Validator.
         
         Args:
             config (dict[str, Any]): Dictionary containing the alarm configuration
-            vars (Variables): Parameters to use for value resolution
+            variables (Variables): Parameters to use for value resolution
         """
-        self.__vars = vars
+        self.__vars = variables
         self.__config = config
         self.__issues = []
     

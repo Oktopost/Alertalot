@@ -4,6 +4,9 @@ from alertalot.generic.output import Output
 
 
 class LoadVariablesFileAction:
+    """
+    Action responsible for loading the variables file.
+    """
     @staticmethod
     def execute(run_args: ArgsObject, output: Output) -> Variables:
         """

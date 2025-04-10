@@ -38,9 +38,9 @@ class AwsEc2Entity(BaseAwsEntity):
     ]
     
     
-    def load_entity(self, id: str) -> dict[str, any]:
+    def load_entity(self, entity_id: str) -> dict[str, any]:
         ec2 = boto3.client("ec2")
-        response = ec2.describe_instances(InstanceIds=[id])
+        response = ec2.describe_instances(InstanceIds=[entity_id])
         
         try:
             return response["Reservations"][0]["Instances"][0]
@@ -72,16 +72,16 @@ class AwsEc2Entity(BaseAwsEntity):
         
         return validated_config
     
-    def get_resource_values(self, instance: dict) -> dict[str, str]:
-        if "InstanceId" not in instance:
+    def get_resource_values(self, resource: dict) -> dict[str, str]:
+        if "InstanceId" not in resource:
             raise ValueError("Missing InstanceId property for EC2 instance")
         
         result = {
-            "INSTANCE_ID": instance["InstanceId"],
+            "INSTANCE_ID": resource["InstanceId"],
         }
         
-        if "Tags" in instance:
-            for tag in instance['Tags']:
+        if "Tags" in resource:
+            for tag in resource['Tags']:
                 if 'Key' not in tag or 'Value' not in tag:
                     continue
                 

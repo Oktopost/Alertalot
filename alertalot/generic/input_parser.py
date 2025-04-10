@@ -101,7 +101,7 @@ def try_str2time(value: str | int | float) -> int | float | None:
         except ValueError:
             pass
             
-    if isinstance(value, int) or isinstance(value, float):
+    if isinstance(value, (int, float)):
         return int(value * 60)
     
     return timeparse(str(value))

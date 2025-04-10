@@ -6,6 +6,10 @@ from alertalot.generic.output import Output, OutputLevel
 
 
 class CreateAlarmAction:
+    """
+    Action responsible for creating a single alarm.
+    """
+    
     @staticmethod
     def execute(
             output: Output,

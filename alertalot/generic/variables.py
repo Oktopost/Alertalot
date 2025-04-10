@@ -16,8 +16,14 @@ class Variables:
     __VARIABLE_REGEX = r"\$[a-zA-Z0-9_-]+(?![a-zA-Z0-9_-])"
     
     
-    def __init__(self, parameters: dict | None = None):
-        self.__arguments: dict = parameters or {}
+    def __init__(self, variables: dict|None = None):
+        """
+        Initialize the variables object.
+        
+        Args:
+            variables (dict | None): Optional initial variables set.
+        """
+        self.__arguments: dict = variables or {}
     
     def __contains__(self, key: str) -> bool:
         """
@@ -55,6 +61,12 @@ class Variables:
     
     
     def items(self):
+        """
+        Return an iterator over the parameter keys.
+        
+        Returns:
+            A set like object providing a view on the variable items.
+        """
         return self.__arguments.items()
     
     def update(self, values) -> None:
@@ -65,7 +77,7 @@ class Variables:
             values (dict | Variables): The attributes to add.
         """
         if isinstance(values, Variables):
-            self.__arguments.update(values.__arguments)
+            self.__arguments.update(values.__arguments) # pylint: disable=protected-access
         elif isinstance(values, dict):
             self.__arguments.update(values)
         elif values is not None:

@@ -17,18 +17,18 @@ class AlarmsConfigValidator:
     def __init__(
             self,
             entity: BaseAwsEntity,
-            vars: Variables,
+            variables: Variables,
             config: dict[str, Any] | Any) -> None:
         """
         Initialize the alarms configuration validator.
         
         Args:
             entity (BaseAwsEntity): The AWS entity that will be used to validate entity-specific alarm configurations
-            vars (Variables): Parameters object used for variable substitution in alarm configurations
+            variables (Variables): Parameters object used for variable substitution in alarm configurations
             config (dict[str, Any] | Any): The raw alarm configuration to validate
         """
         self.__entity = entity
-        self.__vars = vars
+        self.__vars = variables
         self.__config = config
         self.__parsed_config = None
         self.__issues = []

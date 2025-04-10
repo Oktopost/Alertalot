@@ -4,7 +4,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 from alertalot.generic.args_object import ArgsObject
-from alertalot.generic.output import Output
+from alertalot.generic.output import Output, OutputLevel
 
 
 def execute(run_args: ArgsObject, output: Output):
@@ -15,16 +15,18 @@ def execute(run_args: ArgsObject, output: Output):
         run_args (ArgsObject): CLI command line arguments
         output (Output): Output object to use
     """
+    output.print_step("Testing...")
+    
     try:
         sts = boto3.client("sts")
         identity = sts.get_caller_identity()
         
         if run_args.is_verbose:
-            print(f"Access confirmed.")
-            print(f"Account: {identity['Account']}, ARN: {identity['Arn']}")
+            output.print_success(f"Access confirmed", OutputLevel.NORMAL)
+            output.print_success(f"Account: {identity['Account']}, ARN: {identity['Arn']}")
     
     except ClientError as e:
         if run_args.is_verbose:
-            print(f"Access denied: {e}")
+            output.print_failure(f"Failed to connect to AWS: {e}", OutputLevel.QUITE)
         
         sys.exit(1)

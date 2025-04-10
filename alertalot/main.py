@@ -133,23 +133,22 @@ def __execute(args_object: ArgsObject, output: Output) -> None:
 
 
 if __name__ == "__main__":
-    code = 0
-    args_object = __parse_args()
+    args_obj = __parse_args()
     
-    output = Output(
-        is_quiet=args_object.is_quiet,
-        is_verbose=args_object.is_verbose,
-        with_trace=args_object.with_trace
+    out = Output(
+        is_quiet=args_obj.is_quiet,
+        is_verbose=args_obj.is_verbose,
+        with_trace=args_obj.with_trace
     )
     
     try:
-        __execute(args_object, output)
+        __execute(args_obj, out)
     except InvalidTemplateException as e:
-        output.print_line(color="red")
-        output.print_failure("Errors encountered while parsing the template file", level=OutputLevel.QUITE)
-        output.print_list("▷  ", "red", e.issues, level=OutputLevel.QUITE)
-        output.print_line(color="red")
+        out.print_line(color="red")
+        out.print_failure("Errors encountered while parsing the template file", level=OutputLevel.QUITE)
+        out.print_list("▷  ", "red", e.issues, level=OutputLevel.QUITE)
+        out.print_line(color="red")
         sys.exit(1)
-    except Exception as exception:
-        output.print_error(exception, level=OutputLevel.QUITE)
+    except Exception as exception: # pylint: disable=W0718
+        out.print_error(exception, level=OutputLevel.QUITE)
         sys.exit(1)

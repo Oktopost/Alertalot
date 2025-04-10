@@ -19,4 +19,3 @@ def execute(run_args: ArgsObject, output: Output):
     
     output.print_step(f"Variables for instance {run_args.ec2_id}:")
     output.print_key_value(entity_object.get_resource_values(target), level=OutputLevel.NORMAL)
-

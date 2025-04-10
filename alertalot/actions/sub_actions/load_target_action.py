@@ -6,6 +6,10 @@ from alertalot.generic.variables import Variables
 
 
 class LoadTargetAction:
+    """
+    Action responsible for loading a target from AWS based on the passed resource
+    type/ID.
+    """
     @staticmethod
     def execute(run_args: ArgsObject, output: Output, variables: Variables|None = None) -> dict[str, Any]:
         """

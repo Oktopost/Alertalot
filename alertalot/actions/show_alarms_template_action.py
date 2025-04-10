@@ -20,7 +20,7 @@ def execute(run_args: ArgsObject, output: Output):
         run_args (ArgsObject): CLI command line arguments
         output (Output): Output object to use
     """
-    vars = Variables()
+    variables = Variables()
     entity_object = run_args.get_aws_entity()
     
     if entity_object is None:
@@ -30,15 +30,15 @@ def execute(run_args: ArgsObject, output: Output):
         raise ValueError("No template file provided. Missing the --template-file argument.")
     
     if run_args.vars_file:
-        vars.update(LoadVariablesFileAction.execute(run_args, output))
+        variables.update(LoadVariablesFileAction.execute(run_args, output))
     
     if run_args.ec2_id is not None:
         target = LoadTargetAction.execute(run_args, output)
         values = entity_object.get_resource_values(target)
         
-        vars.update(values)
+        variables.update(values)
     
-    validator = LoadTemplateAction.execute(run_args, output, vars)
+    validator = LoadTemplateAction.execute(run_args, output, variables)
     
     output.print_line()
     output.print_yaml(validator.parsed_config, level=OutputLevel.NORMAL)

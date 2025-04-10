@@ -24,13 +24,13 @@ def execute(run_args: ArgsObject, output: Output):
         raise ValueError("Target must be provided. Missing --ec2-id argument.")
 
     # 1. Load variables file
-    vars = LoadVariablesFileAction.execute(run_args, output)
+    variables = LoadVariablesFileAction.execute(run_args, output)
     
     # 2. Load the target object
-    LoadTargetAction.execute(run_args, output, vars)
+    LoadTargetAction.execute(run_args, output, variables)
     
     # 3. Load and validate alarms config
-    validator = LoadTemplateAction.execute(run_args, output, vars)
+    validator = LoadTemplateAction.execute(run_args, output, variables)
     
     # 4. Create the alarms.
     start_time = time.time()

@@ -14,17 +14,16 @@ class BaseAwsEntity(ABC):
     
     
     @abstractmethod
-    def load_entity(self, id: str) -> dict[str, any]:
+    def load_entity(self, entity_id: str) -> dict[str, any]:
         """
         Load entity data from AWS based on the provided identifier.
         
         Args:
-            id (str): The identifier of the entity to load
+            entity_id (str): The identifier of the entity to load
             
         Returns:
             dict[str, any]: The loaded entity data
         """
-        pass
     
     @abstractmethod
     def validate_alarm(self, validator: AwsAlarmValidator) -> dict[str, any]:
@@ -34,7 +33,6 @@ class BaseAwsEntity(ABC):
         Args:
             validator (AwsAlarmValidator): The validator instance with configuration
         """
-        pass
     
     @abstractmethod
     def get_resource_values(self, resource: dict) -> dict[str, str]:
@@ -50,7 +48,6 @@ class BaseAwsEntity(ABC):
         Raises:
             ValueError: If the resource has invalid format
         """
-        pass
     
     @abstractmethod
     def get_required_alarm_keys(self) -> list[str]:
@@ -60,7 +57,6 @@ class BaseAwsEntity(ABC):
         Returns:
             list[str]: List of required alarm keys
         """
-        pass
     
     @abstractmethod
     def get_optional_alarm_keys(self) -> list[str]:
@@ -70,4 +66,3 @@ class BaseAwsEntity(ABC):
         Returns:
             list[str]: List of optional alarm keys
         """
-        pass

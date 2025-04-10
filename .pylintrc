@@ -6,7 +6,9 @@ disable=
     no-else-return,
     trailing-whitespace,
     f-string-without-interpolation,
-    missing-module-docstring
+    missing-module-docstring,
+    too-few-public-methods,
+    too-many-instance-attributes
 
 [FORMAT]
 max-line-length=120
