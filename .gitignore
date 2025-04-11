@@ -1,7 +1,6 @@
 # Python
 venv
 __pycache__/
-.coverage
 alertalot.egg-info
 
 # IDE
@@ -9,3 +8,4 @@ alertalot.egg-info
 
 # Tests
 coverage.xml
+.coverage
