@@ -40,6 +40,11 @@ create_horizontal_line
 pylint tests --rcfile=tests/.pylintrc --fail-under=10
 PYLINT_TESTS_RESULT=$?
 
+# Run Unittests
+echo "> Running Unittests: 'pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=10'"
+create_horizontal_line
+pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=10
+UNITTESTS_RESULT=$?
 
 
 create_horizontal_line
@@ -47,14 +52,21 @@ create_horizontal_line
 if [ $PYLINT_ALERTALOT_RESULT -eq 0 ]; then
   echo -e "${GREEN}✓${NC} SUCCESS: Alertalot Pylint check passed"
 else
-  echo -e "${RED}✗${NC} FAILURE: Alertalot Pylint check passed"
+  echo -e "${RED}✗${NC} FAILURE: Alertalot Pylint check failed"
   IS_FAILED=1
 fi
 
 if [ $PYLINT_TESTS_RESULT -eq 0 ]; then
   echo -e "${GREEN}✓${NC} SUCCESS: Unittests Pylint check passed"
 else
-  echo -e "${RED}✗${NC} FAILURE: Unittests Pylint check passed"
+  echo -e "${RED}✗${NC} FAILURE: Unittests Pylint check failed"
+  IS_FAILED=1
+fi
+
+if [ $UNITTESTS_RESULT -eq 0 ]; then
+  echo -e "${GREEN}✓${NC} SUCCESS: Unittests passed"
+else
+  echo -e "${RED}✗${NC} FAILURE: Unittests failed"
   IS_FAILED=1
 fi
 
