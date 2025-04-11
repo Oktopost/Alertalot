@@ -6,25 +6,27 @@
 
 Python library for creating AWS CloudWatch alerts automatically based on predefined configurations.
 
-## Getting Started
+## Running the Code
 
-### Installation
+### Linux
 
-1. Clone the repository:
+1. Clone the repository and run
+   ```shell
+   ./bin/install.sh
    ```
-   git clone https://github.com/yourusername/alertalot.git
-   cd alertalot
+2. Optionally, run tests
+   ```shell
+   ./bin/test.sh
    ```
-
-2. Create and activate a virtual environment:
-   ```
-   python -m venv venv
-   source ./venv/bin/activate
-   ```
-
-3. Install dependencies:
-   ```
-   pip install -r requirements.txt
+   You should see:
+   ```shell
+   ...
+   ─────────────────────────────────────────────
+   ✓ SUCCESS: Alertalot Pylint check passed
+   ✓ SUCCESS: Unittests Pylint check passed
+   ✓ SUCCESS: Unittests passed
+   ─────────────────────────────────────────────
+   ✓ OK!
    ```
 
 ## Usage
@@ -34,7 +36,7 @@ Alertalot can be run with various options to create CloudWatch alerts for AWS re
 ### Basic Usage
 
 ```
-python -m alertalot.main --instance-id i-xxxxxxxxx --params-file examples/params.yaml --template-file examples/ec2-application.yaml --region us-east-1
+python -m alertalot.main --instance-id i-xxxxxxxxx --vars-file examples/variables.yaml --template-file examples/ec2-application.yaml --region us-east-1
 ```
 
 ### Available Options
