@@ -13,6 +13,23 @@ from alertalot.exception.invalid_template_exception import InvalidTemplateExcept
 from alertalot.generic.output import OutputLevel
 
 
+def __parse_key_value(argument: str) -> (str, str):
+    """
+    Parse a string in the format 'key=value' into separate key and value strings.
+    
+    Args:
+        argument: A string in the format 'key=value' to be parsed.
+
+    Returns:
+        A tuple containing two strings: (key, value)
+    """
+    try:
+        key, value = argument.split('=', 1)
+        return key, value
+    except ValueError as e:
+        raise argparse.ArgumentTypeError(f"'{argument}' is not a valid key=value pair") from e
+
+
 def __create_args_object() -> argparse.ArgumentParser:
     """
     Parse command line arguments for the application.
@@ -30,6 +47,15 @@ def __create_args_object() -> argparse.ArgumentParser:
         "--vars-file", "--variables-file",
         type=str,
         help="Relative path to the variables file to use")
+    
+    parser.add_argument(
+        "--var",
+        action="append",
+        type=__parse_key_value,
+        dest="variables",
+        default=[],
+        help="Key/value pairs to use for variables"
+    )
     
     parser.add_argument("--template-file", type=str, help="Relative path to the template file to use")
     
@@ -109,6 +135,12 @@ def __create_args_object() -> argparse.ArgumentParser:
     
 
 def __parse_args() -> ArgsObject:
+    """
+    Parse command line arguments for the application.
+    
+    Returns:
+        ArgsObject: An object containing all parsed command-line arguments.
+    """
     args_parser = __create_args_object()
     args_array = args_parser.parse_args()
     
@@ -116,6 +148,13 @@ def __parse_args() -> ArgsObject:
 
 
 def __execute(args_object: ArgsObject, output: Output) -> None:
+    """
+    Execute the target action based on the provided arguments.
+    
+    Args:
+        args_object (ArgsObject): An object containing all parsed command-line arguments.
+        output (Output): The output object to use.
+    """
     if args_object.show_variables:
         show_variables_action.execute(args_object, output)
     elif args_object.test_aws:

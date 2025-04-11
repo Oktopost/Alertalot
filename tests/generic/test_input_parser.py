@@ -141,7 +141,7 @@ def test__str2time__raises_for_invalid_inputs():
 
 
 def test__str2time__error_message():
-    with pytest.raises(ValueError, match="String 'None', is not a valid time expression"):
+    with pytest.raises(ValueError, match="String 'invalid', is not a valid time expression"):
         str2time("invalid")
 
 

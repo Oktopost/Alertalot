@@ -10,6 +10,7 @@ class ArgsObject:
     """
     def __init__(self, args):
         self.__args = args
+        self.__args.variables = dict(args.variables)
         
         if isinstance(self.region, str):
             boto3.setup_default_session(region_name=self.region)
@@ -135,6 +136,16 @@ class ArgsObject:
 
         """
         return self.__args.ec2_id
+    
+    @property
+    def variables(self) -> dict[str, str]:
+        """
+        A list of variables passed to the executable using the --var argument.
+        
+        Returns:
+            dict[str, str]: List of variables.
+        """
+        return self.__args.variables
 
     
     def get_aws_entity(self) -> BaseAwsEntity | None:

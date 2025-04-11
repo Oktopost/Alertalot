@@ -6,3 +6,6 @@ alertalot.egg-info
 
 # IDE
 .idea
+
+# Tests
+coverage.xml

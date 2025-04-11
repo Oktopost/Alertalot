@@ -26,6 +26,7 @@ class LoadVariablesFileAction:
         })
         
         data = Variables.parse(run_args.vars_file, run_args.region)
+        data.update(run_args.variables)
         
         output.print_success("File loaded")
         

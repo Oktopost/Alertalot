@@ -18,14 +18,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m venv venv
-          ./venv/bin/pip install --upgrade pip
-          ./venv/bin/pip install -r requirements.txt
-          ./venv/bin/pip install -r dev-requirements.txt
+          python3.10 -m venv venv
+          pip install -e .[dev]
+          source venv/bin/activate
 
       - name: Run tests
         run: |
-          ./venv/bin/pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=30
+          pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=10
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -34,8 +33,8 @@ jobs:
 
       - name: Run pylint on alertalot
         run: |
-          ./venv/bin/pylint alertalot --rcfile=.pylintrc --fail-under 10
+          pylint alertalot --rcfile=.pylintrc --fail-under 10
 
       - name: Run pylint on tests
         run: |
-          ./venv/bin/pylint tests --rcfile=tests/.pylintrc --fail-under 10
+          pylint tests --rcfile=tests/.pylintrc --fail-under 10

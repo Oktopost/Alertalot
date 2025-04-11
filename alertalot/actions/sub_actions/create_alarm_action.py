@@ -27,7 +27,7 @@ class CreateAlarmAction:
         cloudwatch = boto3.client('cloudwatch')
         name = config["alarm-name"]
         
-        output.print_step(f"Creating alarm \"{name}\"...")
+        output.print_step(f"Creating alarm \"{name}\"...", OutputLevel.NORMAL)
         
         cloudwatch_config = {
             "AlarmName": config["alarm-name"],
