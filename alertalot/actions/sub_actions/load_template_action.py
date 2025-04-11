@@ -11,7 +11,8 @@ class LoadTemplateAction:
     Action responsible for loading a template and validating it.
     """
     @staticmethod
-    def execute(run_args: ArgsObject, output: Output, variables: Variables) -> AlarmsConfigValidator:
+    def execute(run_args: ArgsObject, output: Output, variables: Variables, is_strict: bool = True)\
+            -> AlarmsConfigValidator:
         """
         Load and validate the alarms template file.
         
@@ -19,6 +20,7 @@ class LoadTemplateAction:
             run_args (ArgsObject): CLI command line arguments
             output (Output): Output object to use
             variables (Variables): Parameters to use for substitution
+            is_strict (bool): If True, failed the execution if template is invalid
         """
         if run_args.vars_file is None:
             raise ValueError("No variables file provided")
@@ -32,10 +34,10 @@ class LoadTemplateAction:
         validator = AlarmsConfigValidator(
             run_args.get_aws_entity(),
             variables,
-            alarm_config
+            alarm_config,
         )
         
-        if validator.validate():
+        if validator.validate(is_strict):
             output.print_success("File loaded")
             return validator
         else:

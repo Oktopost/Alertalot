@@ -67,7 +67,7 @@ class AlarmsConfigValidator:
         return self.__parsed_config
     
     
-    def validate(self) -> bool:
+    def validate(self, is_strict: bool = True) -> bool:
         """
         Validates the alarm configuration and populates parsed_config with processed alarms.
         
@@ -81,6 +81,9 @@ class AlarmsConfigValidator:
         
         This method is idempotent and can be called multiple times without side effects.
         After validation, any issues found are available through the `issues` property.
+        
+        Args:
+            is_strict (bool): If False, do not fail the validation for variable substitution cases.
         
         Returns:
             bool: True if configuration is valid, False otherwise
@@ -102,7 +105,7 @@ class AlarmsConfigValidator:
             
             parsed_alarm_config = {}
             
-            validator = AwsAlarmValidator(alarm_config, self.__vars)
+            validator = AwsAlarmValidator(alarm_config, self.__vars, is_preview=not is_strict)
             
             validator.validate_required_keys(self.__entity.get_required_alarm_keys())
             validator.validate_unknown_keys(
@@ -114,7 +117,7 @@ class AlarmsConfigValidator:
             
             if validator.issues_found:
                 for issue in validator.issues:
-                    self.__issues.append(f"[\"alarms\"][{i}]{issue}")
+                    self.__issues.append(f"[\"alarms\"][{i}][{issue}")
             else:
                 parsed_config.append(parsed_alarm_config)
             

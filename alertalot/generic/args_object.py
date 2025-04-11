@@ -146,6 +146,17 @@ class ArgsObject:
             dict[str, str]: List of variables.
         """
         return self.__args.variables
+    
+    @property
+    def is_strict(self) -> bool:
+        """
+        If set, the alarm template must pass validation when parsing
+        and displaying parameters with the --show-variables command.
+        
+        Returns:
+            bool: True if strict flag is set.
+        """
+        return self.__args.strict
 
     
     def get_aws_entity(self) -> BaseAwsEntity | None:

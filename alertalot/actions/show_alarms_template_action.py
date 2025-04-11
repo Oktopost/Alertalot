@@ -38,7 +38,7 @@ def execute(run_args: ArgsObject, output: Output):
         
         variables.update(values)
     
-    validator = LoadTemplateAction.execute(run_args, output, variables)
+    validator = LoadTemplateAction.execute(run_args, output, variables, is_strict=run_args.is_strict)
     
     output.print_line()
     output.print_yaml(validator.parsed_config, level=OutputLevel.NORMAL)

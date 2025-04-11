@@ -72,6 +72,13 @@ def __create_args_object() -> argparse.ArgumentParser:
         help="If set, when printing out an exception also add a pretty print of the stack trace. "
              "Otherwise only the error message is printed.")
     
+    parser.add_argument(
+        "--strict", "-s",
+        action="store_true",
+        dest="strict",
+        help="If set, the template must pass validation when parsing "
+             "and displaying parameters with the --show-variables command.")
+    
     ##########
     # Output #
     ##########

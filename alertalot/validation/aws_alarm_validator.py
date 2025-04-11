@@ -53,17 +53,26 @@ class AwsAlarmValidator:
     ]
     
     
-    def __init__(self, config: dict[str, Any], variables: Variables):
+    def __init__(
+            self,
+            config: dict[str, Any],
+            variables: Variables,
+            *,
+            is_preview: bool = False):
         """
         Initialize the AWS Alarm Validator.
         
         Args:
             config (dict[str, Any]): Dictionary containing the alarm configuration
             variables (Variables): Parameters to use for value resolution
+            is_preview (bool):
+                If set to true, the output does not need to be strictly validated and the
+                variables are optional
         """
         self.__vars = variables
         self.__config = config
         self.__issues = []
+        self.__is_preview = is_preview
     
     
     @property
@@ -253,12 +262,11 @@ class AwsAlarmValidator:
                 continue
             
             try:
-                action = self.__vars.substitute(action)
+                action = self.__vars.substitute(action, fail_if_missing=not self.__is_preview)
             except KeyError as e:
                 self.__issues.append(f"[\"{key}\"][{i}] {e}")
-                continue
             
-            if not action.startswith("arn:aws:sns:"):
+            if not self.__is_preview and not action.startswith("arn:aws:sns:"):
                 self.__issues.append(f"[\"{key}\"][{i}] Invalid SNS topic ARN format: '{action}'")
             
             validated_actions.append(action)
@@ -295,7 +303,7 @@ class AwsAlarmValidator:
                 self.__issues.append(f"[\"{key}\"] Tag key must be max 128 characters, got {len(tag_key)} characters")
             
             try:
-                validated_tags[tag_key] = self.__vars.substitute(value)
+                validated_tags[tag_key] = self.__vars.substitute(value, fail_if_missing=not self.__is_preview)
             except KeyError as e:
                 self.__issues.append(f"\"{key}\"] {e}")
         
@@ -321,9 +329,12 @@ class AwsAlarmValidator:
         metric_name = self.__expand_ec2_metric_shortcut(metric_name)
         
         try:
-            metric_name = self.__vars.substitute(metric_name)
+            metric_name = self.__vars.substitute(metric_name, fail_if_missing=not self.__is_preview)
         except KeyError as e:
             self.__issues.append(f"[\"{key}\"] {str(e)}")
+            return metric_name
+        
+        if self.__is_preview:
             return metric_name
         
         if len(metric_name.encode('utf-8')) > 255:
@@ -352,9 +363,12 @@ class AwsAlarmValidator:
                                 f"got '{type(alarm_name).__name__}'")
         
         try:
-            alarm_name = self.__vars.substitute(alarm_name)
+            alarm_name = self.__vars.substitute(alarm_name, fail_if_missing=not self.__is_preview)
         except KeyError as e:
             self.__issues.append(f"[\"{key}\"] {str(e)}")
+            return alarm_name
+        
+        if self.__is_preview:
             return alarm_name
         
         if len(alarm_name.encode('utf-8')) > 255:

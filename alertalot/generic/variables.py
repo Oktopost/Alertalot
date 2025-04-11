@@ -83,13 +83,14 @@ class Variables:
         elif values is not None:
             raise ValueError("Expecting a Parameters object or dict")
     
-    def substitute(self, text: str) -> str:
+    def substitute(self, text: str, fail_if_missing: bool = True) -> str:
         """
         Replace all $variable occurrences in the given string with their corresponding values
         from _arguments. If a variable is not found, raise a KeyError.
         
         Args:
             text (str): The input string containing $variable placeholders.
+            fail_if_missing (bool): If True, raise a KeyError if the variable is not found.
 
         Returns:
             str: The string with all variables replaced.
@@ -102,6 +103,9 @@ class Variables:
             var_name = match.group()[1:]
             
             if var_name not in self:
+                if not fail_if_missing:
+                    return match.group()
+                
                 raise KeyError(f"Variable '{var_name}' not found in parameters list.")
             
             return str(self[var_name])
