@@ -3,6 +3,9 @@ from typing import Any
 from alertalot.generic.variables import Variables
 from alertalot.entities.base_aws_entity import BaseAwsEntity
 from alertalot.validation.aws_alarm_validator import AwsAlarmValidator
+from alertalot.exception.unidentified_type_exception import UnidentifiedTypeException
+from alertalot.entities.aws_entity_factory import AwsEntityFactory
+from alertalot.generic.target_type import TargetType
 
 
 class AlarmsConfigValidator:
@@ -106,19 +109,33 @@ class AlarmsConfigValidator:
             
             parsed_alarm_config = {}
             
+            entity = self.__validate_entity_type(alarm_config)
+            
+            # If configuration entity type is different then targeted entity type, skip this config.
+            if entity is None:
+                continue
+            
             validator = AwsAlarmValidator(alarm_config, self.__vars, is_preview=not is_strict)
             
-            validator.validate_required_keys(self.__entity.get_required_alarm_keys())
+            validator.validate_required_keys(entity.get_required_alarm_keys())
             validator.validate_unknown_keys(
-                self.__entity.get_required_alarm_keys(),
-                self.__entity.get_optional_alarm_keys())
+                entity.get_required_alarm_keys(),
+                entity.get_optional_alarm_keys())
             
             if not validator.issues_found:
-                parsed_alarm_config = self.__entity.validate_alarm(validator)
+                if "type" in alarm_config:
+                    parsed_alarm_config["type"] = alarm_config["type"]
+                elif self.__entity is not None:
+                    parsed_alarm_config["type"] = self.__entity.entity_type()
+                
+                parsed_alarm_config |= entity.validate_alarm(validator)
             
             if validator.issues_found:
                 for issue in validator.issues:
-                    self.__issues.append(f"[\"alarms\"][{i}][{issue}")
+                    if len(issue) > 0 and issue[0] != '[':
+                        issue = ' ' + issue
+                    
+                    self.__issues.append(f"[\"alarms\"][{i}]{issue}")
             else:
                 parsed_config.append(parsed_alarm_config)
             
@@ -157,3 +174,33 @@ class AlarmsConfigValidator:
             return False
         
         return True
+    
+    def __validate_entity_type(self, alarm_entry: dict[str, Any]) -> BaseAwsEntity | None:
+        """
+        Check if the target entity type matches the value in the configuration, or return the correct
+        entity type if one provided and no target entity type is specified.
+        
+        Args:
+            alarm_entry (dict[str, Any]): The alarm entry to use.
+
+        Returns:
+            BaseAwsEntity: The entity type to use. None, if type does not match the target type.
+            
+        Raises:
+            UnidentifiedTypeException:
+                If the entity type is missing for the config and no argument for the entity is specified.
+        """
+        if "type" not in alarm_entry:
+            if self.__entity is None:
+                raise UnidentifiedTypeException()
+            
+            return self.__entity
+        
+        target_type = TargetType.require(alarm_entry["type"])
+        
+        if self.__entity is None:
+            return AwsEntityFactory.from_type(target_type)
+        elif self.__entity.entity_type() != target_type:
+            return None
+        
+        return self.__entity

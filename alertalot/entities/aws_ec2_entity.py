@@ -2,6 +2,7 @@ from typing import ClassVar
 
 import boto3
 
+from alertalot.generic.target_type import TargetType
 from alertalot.entities.base_aws_entity import BaseAwsEntity
 from alertalot.validation.aws_alarm_validator import AwsAlarmValidator
 
@@ -37,6 +38,9 @@ class AwsEc2Entity(BaseAwsEntity):
         "EBSByteBalance%"
     ]
     
+    
+    def entity_type(self) -> TargetType:
+        return TargetType.EC2
     
     def load_entity(self, entity_id: str) -> dict[str, any]:
         ec2 = boto3.client("ec2")

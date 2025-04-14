@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from alertalot.validation.aws_alarm_validator import AwsAlarmValidator
+from alertalot.generic.target_type import TargetType
 
 
 class BaseAwsEntity(ABC):
@@ -12,6 +13,14 @@ class BaseAwsEntity(ABC):
     extracting resource values for alarm creation.
     """
     
+    @abstractmethod
+    def entity_type(self) -> TargetType:
+        """
+        Get the entity type this entity represents.
+        
+        Returns:
+            TargetType: The entity type this entity represents
+        """
     
     @abstractmethod
     def load_entity(self, entity_id: str) -> dict[str, any]:

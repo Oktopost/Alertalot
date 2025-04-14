@@ -32,7 +32,7 @@ class AwsEntityFactory:
         Create entity instance from target type.
         
         Args:
-            target_type: Target type name or enum.
+            target_type (str | TargetTyp): Target type name or enum.
             
         Returns:
             BaseAwsEntity: AWS entity instance.

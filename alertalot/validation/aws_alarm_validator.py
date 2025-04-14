@@ -127,6 +127,8 @@ class AwsAlarmValidator:
             optional_keys (list[str]): List of keys that may be present
         """
         for key in self.__config:
+            if key == "type":
+                continue
             if key not in optional_keys and key not in required_keys:
                 self.__issues.append(f"Unknown key '{key}' in EC2 alarm configuration")
     

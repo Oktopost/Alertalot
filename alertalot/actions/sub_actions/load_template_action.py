@@ -35,7 +35,7 @@ class LoadTemplateAction:
         output.print_key_value(variables)
         
         alarm_config = load(run_args.template_file)
-    
+        
         validator = AlarmsConfigValidator(
             AwsEntityFactory.from_args(run_args),
             variables,
