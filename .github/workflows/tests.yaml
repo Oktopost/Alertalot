@@ -24,7 +24,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=10
+          pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=25
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

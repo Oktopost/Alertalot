@@ -41,9 +41,9 @@ pylint tests --rcfile=tests/.pylintrc --fail-under=10
 PYLINT_TESTS_RESULT=$?
 
 # Run Unittests
-echo "> Running Unittests: 'pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=10'"
+echo "> Running Unittests: 'pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=25'"
 create_horizontal_line
-pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=10
+pytest --cov=alertalot --cov-report=xml --cov-branch --cov-fail-under=25
 UNITTESTS_RESULT=$?
 
 
