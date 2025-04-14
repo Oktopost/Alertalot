@@ -6,6 +6,7 @@ class TargetType(Enum):
     Enumeration of supported target type for AWS.
     """
     EC2 = "ec2"
+    GENERIC = "generic"
     
     
     @classmethod

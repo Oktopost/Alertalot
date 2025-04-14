@@ -126,7 +126,7 @@ class AlarmsConfigValidator:
                 if "type" in alarm_config:
                     parsed_alarm_config["type"] = alarm_config["type"]
                 elif self.__entity is not None:
-                    parsed_alarm_config["type"] = self.__entity.entity_type()
+                    parsed_alarm_config["type"] = self.__entity.entity_type
                 
                 parsed_alarm_config |= entity.validate_alarm(validator)
             
@@ -200,7 +200,7 @@ class AlarmsConfigValidator:
         
         if self.__entity is None:
             return AwsEntityFactory.from_type(target_type)
-        elif self.__entity.entity_type() != target_type:
+        elif self.__entity.entity_type != target_type:
             return None
         
         return self.__entity

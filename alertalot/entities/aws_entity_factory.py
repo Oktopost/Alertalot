@@ -22,7 +22,7 @@ class AwsEntityFactory:
             BaseAwsEntity: AWS entity instance or None if no entity can be created.
         """
         if args.ec2_id is not None:
-            return AwsEc2Entity()
+            return AwsEc2Entity(args.ec2_id)
         
         return None
     
