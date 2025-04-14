@@ -10,5 +10,4 @@ alarms:
     evaluation-periods: 1 minute
     tags:
       level: info
-      name: $abc
     treat-missing-data: breaching
