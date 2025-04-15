@@ -2,6 +2,7 @@ from alertalot.generic.args_object import ArgsObject
 from alertalot.generic.target_type import TargetType
 from alertalot.entities.base_aws_entity import BaseAwsEntity
 from alertalot.entities.aws_ec2_entity import AwsEc2Entity
+from alertalot.entities.aws_generic_entity import AwsGenericEntity
 
 
 class AwsEntityFactory:
@@ -22,7 +23,7 @@ class AwsEntityFactory:
             BaseAwsEntity: AWS entity instance or None if no entity can be created.
         """
         if args.ec2_id is not None:
-            return AwsEc2Entity(args.ec2_id)
+            return AwsEc2Entity()
         
         return None
     
@@ -47,6 +48,8 @@ class AwsEntityFactory:
         match target_type:
             case TargetType.EC2:
                 return AwsEc2Entity()
+            case TargetType.GENERIC:
+                return AwsGenericEntity()
             
             case _:
                 raise NotImplementedError(f"Missing entity type for '{target_type.value}'")

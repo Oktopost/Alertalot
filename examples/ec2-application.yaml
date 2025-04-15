@@ -1,7 +1,7 @@
 alarms:
   - type: ec2
     alarm-name: AWS / CPU Usage 5 minute / $INSTANCE_NAME / $INSTANCE_ID
-    metric-name: cpu
+    metric-name: CPUUtilization
     alarm-actions: $ALARM_ACTION_ARN
     statistic: Average
     period: 5 minutes

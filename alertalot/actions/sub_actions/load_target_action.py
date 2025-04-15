@@ -27,7 +27,7 @@ class LoadTargetAction:
             raise ValueError("Target must be provided. Missing id argument.")
         
         output.print_step(f"Loading instance {run_args.ec2_id}...")
-        data = output.spinner(entity_object.load)
+        data = output.spinner(lambda: entity_object.load_entity(run_args.ec2_id))
         
         if variables is not None:
             variables.update(entity_object.get_resource_values(data))

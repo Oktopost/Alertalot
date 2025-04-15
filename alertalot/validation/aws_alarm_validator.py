@@ -311,6 +311,44 @@ class AwsAlarmValidator:
         
         return validated_tags
     
+    def validate_dimensions(self) -> dict[str, str]:
+        """
+        Validates alarm dimensions.
+        
+        Args:
+            key (str): The key in the config dictionary. Defaults to "dimensions".
+            
+        Returns:
+            dict[str, str]: Validated dimensions dictionary
+        """
+        key = "dimensions"
+        
+        if key not in self.__config:
+            return {}
+        
+        tags = self.__config[key]
+        
+        if not isinstance(tags, dict):
+            self.__issues.append(f"[\"{key}\"] Dimensions must be a dictionary, got {type(tags).__name__}")
+            return {}
+        
+        validated_dimension = {}
+        
+        for tag_key, value in tags.items():
+            if not isinstance(tag_key, str):
+                self.__issues.append(f"[\"{key}\"] Dimension key must be a string, got '{tag_key}'")
+                continue
+                
+            if len(tag_key) > 128:
+                self.__issues.append(f"[\"{key}\"] Dimension key must be max 128 characters, got {len(tag_key)}")
+            
+            try:
+                validated_dimension[tag_key] = self.__vars.substitute(value, fail_if_missing=not self.__is_preview)
+            except KeyError as e:
+                self.__issues.append(f"\"{key}\"] {e}")
+        
+        return validated_dimension
+    
     def validate_metric_name(self, key: str = "metric-name", allowed: list[str] | None = None) -> str:
         """
         Validates a CloudWatch metric name.
@@ -326,9 +364,7 @@ class AwsAlarmValidator:
         
         if not isinstance(metric_name, str):
             self.__issues.append(f"[\"{key}\"] Metric name must be a non-empty string, "
-                                f"got '{type(metric_name).__name__}'")
-        
-        metric_name = self.__expand_ec2_metric_shortcut(metric_name)
+                                 f"got '{type(metric_name).__name__}'")
         
         try:
             metric_name = self.__vars.substitute(metric_name, fail_if_missing=not self.__is_preview)
@@ -447,40 +483,22 @@ class AwsAlarmValidator:
             self.__issues.append(f"[\"{key}\"] Invalid unit: '{unit}'.")
         
         return unit
-    
-    
-    def __expand_ec2_metric_shortcut(self, metric_name: str) -> str:
-        """
-        Check if the metric name is written in the shortcut format and if so expand it to the correct format.
-        
-        Args:
-            metric_name (str): The metric name to expand, if necessary
 
-        Returns:
-            str: The expanded metric name or the original name if not a shortcut
+    def validate_namespace(self) -> str:
         """
-        shortcuts = {
-            "cpu": "CPUUtilization",
-            "disk-read": "DiskReadOps",
-            "disk-write": "DiskWriteOps",
-            "disk-read-bytes": "DiskReadBytes",
-            "disk-write-bytes": "DiskWriteBytes",
-            "network-in": "NetworkIn",
-            "network-out": "NetworkOut",
-            "network-packets-in": "NetworkPacketsIn",
-            "network-packets-out": "NetworkPacketsOut",
-            "status-check": "StatusCheckFailed",
-            "status-check-instance": "StatusCheckFailed_Instance",
-            "status-check-system": "StatusCheckFailed_System",
-            "ebs-read": "EBSReadOps",
-            "ebs-write": "EBSWriteOps",
-            "ebs-read-bytes": "EBSReadBytes",
-            "ebs-write-bytes": "EBSWriteBytes",
-            "ebs-io-balance": "EBSIOBalance%",
-            "ebs-byte-balance": "EBSByteBalance%"
-        }
+        Validate that namespace is a valid string.
         
-        if metric_name in shortcuts:
-            return shortcuts[metric_name]
+        Returns:
+            str: The validated namespace
+        """
+        namespace = self.__config["namespace"]
         
-        return metric_name
+        if not isinstance(namespace, str):
+            self.__issues.append(f"[\"namespace\"] Namespace must be a string.")
+        
+        try:
+            namespace = self.__vars.substitute(namespace, fail_if_missing=not self.__is_preview)
+        except KeyError as e:
+            self.__issues.append(f"[\"namespace\"] {e}")
+        
+        return namespace

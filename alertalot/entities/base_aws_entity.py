@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from decimal import InvalidOperation
 from typing import Any
 
 from alertalot.validation.aws_alarm_validator import AwsAlarmValidator
@@ -18,40 +17,16 @@ class BaseAwsEntity(ABC):
     def __init__(
             self,
             *,
-            entity_type: TargetType.EC2,
-            entity_id: str | None = None):
+            entity_type: TargetType.EC2):
         """
         Creates a new AWS entity instance.
         
         Args:
             entity_type (TargetType): The type of entity.
-            entity_id (str | None): The ID of the entity or None if a generic Entity is created.
         """
         
-        self.__entity_id = entity_id
         self.__entity_type = entity_type
     
-    
-    @property
-    def has_entity_id(self) -> bool:
-        """
-        Was the object initialized with the entity ID?
-        
-        Returns:
-            bool: True, if object initialized with the entity ID
-        """
-        return self.__entity_id is not None
-    
-    @property
-    def entity_id(self) -> str | None:
-        """
-        Get the entity ID that this object was initialized with, if any.
-        
-        Returns:
-            str: entity ID
-            None: If object initialized without an ID
-        """
-        return self.__entity_id
     
     @property
     def entity_type(self) -> TargetType:
@@ -79,9 +54,8 @@ class BaseAwsEntity(ABC):
             ValueError: If the resource has invalid format
         """
     
-    
     @abstractmethod
-    def _load_entity(self, entity_id: str) -> dict[str, any]:
+    def load_entity(self, entity_id: str) -> dict[str, any]:
         """
         Load entity data from AWS based on the provided identifier.
         
@@ -92,8 +66,9 @@ class BaseAwsEntity(ABC):
             dict[str, any]: The loaded entity data
         """
     
+    
     @abstractmethod
-    def _get_additional_boto3_config(self) -> dict[str, Any]:
+    def get_additional_config(self) -> dict[str, Any]:
         """
         Additional boto3 configuration for AWS entity
         
@@ -110,25 +85,6 @@ class BaseAwsEntity(ABC):
             list[str]: List of supported metric names or an empty list if any value is allowed.
         """
     
-    
-    def require_entity_id(self) -> None:
-        """
-        Raises an exception if the entity ID is not set.
-        """
-        if self.entity_id is None:
-            raise InvalidOperation('Entity ID must be set for for this operation')
-        
-    def load(self) -> dict[str, any]:
-        """
-        Load the entity using the entity ID this object was initialized with.
-        
-        Returns:
-            dict[str, any]: The loaded entity data
-        """
-        if not self.has_entity_id:
-            raise InvalidOperation("Can not load entity, no entity ID provided")
-        
-        return self._load_entity(self.entity_id)
     
     def validate_alarm(self, validator: AwsAlarmValidator) -> dict[str, any]:
         """
@@ -159,38 +115,13 @@ class BaseAwsEntity(ABC):
         if "unit" in validator.config:
             validated_config["unit"] = validator.validate_unit()
         
+        if "namespace" in validator.config:
+            validated_config["namespace"] = validator.validate_namespace()
+        
+        if "dimensions" in validator.config:
+            validated_config["dimensions"] = validator.validate_dimensions()
+        
         return validated_config
-    
-    def get_required_alarm_keys(self) -> list[str]:
-        """
-        Get the list of required keys for alarms.
-        
-        Returns:
-            list[str]: List of required alarm keys
-        """
-        return [
-            "metric-name",
-            "alarm-name",
-            "statistic",
-            "period",
-            "comparison-operator",
-            "threshold",
-            "evaluation-periods"
-        ]
-    
-    def get_optional_alarm_keys(self) -> list[str]:
-        """
-        Get the list of optional keys for alarms.
-        
-        Returns:
-            list[str]: List of optional alarm keys
-        """
-        return [
-            "alarm-actions",
-            "tags",
-            "treat-missing-data",
-            "unit",
-        ]
     
     def to_boto3_alarm(self, alarm_config: dict[str, any]) -> dict[str, any]:
         """
