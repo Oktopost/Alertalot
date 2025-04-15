@@ -104,6 +104,7 @@ def test__substitute_variables():
     assert parameters.substitute("Service: $SERVICE.") == "Service: backend."
     assert parameters.substitute("Service: $SERVICE!") == "Service: backend!"
     assert parameters.substitute("$SERVICE, $SERVICE, $SERVICE") == "backend, backend, backend"
+    assert parameters.substitute("$SERVICE-CPU") == "backend-CPU"
 
 
 def test__substitute_variables__not_found():

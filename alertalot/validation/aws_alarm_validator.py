@@ -187,7 +187,7 @@ class AwsAlarmValidator:
             seconds = str2time(period)
         except ValueError as e:
             self.__append_issue(key, f"{e}")
-            return period
+            return 0
         
         if seconds < 60:
             self.__append_issue(key, f"Period must be at least 60 seconds, got {seconds}")
@@ -216,7 +216,6 @@ class AwsAlarmValidator:
         
         except ValueError as e:
             self.__append_issue(key, f"Invalid evaluation periods: '{periods}'. {str(e)}.")
-            
             return 0
 
     def validate_treat_missing_data(self) -> str:
@@ -359,8 +358,10 @@ class AwsAlarmValidator:
         metric_name = self.__config[key]
         
         if not isinstance(metric_name, str):
-            self.__append_issue(key, f"Metric name must be a non-empty string, "
-                                 f"got '{type(metric_name).__name__}'")
+            self.__append_issue(
+                key,
+                f"Metric name must be a non-empty string, got '{type(metric_name).__name__}'")
+            return ""
         
         try:
             metric_name = self.__vars.substitute(metric_name, fail_if_missing=not self.__is_preview)
@@ -394,6 +395,7 @@ class AwsAlarmValidator:
         if not alarm_name or not isinstance(alarm_name, str):
             self.__append_issue(key, f"Alarm name must be a non-empty string, "
                                 f"got '{type(alarm_name).__name__}'")
+            return ""
         
         try:
             alarm_name = self.__vars.substitute(alarm_name, fail_if_missing=not self.__is_preview)
@@ -433,14 +435,11 @@ class AwsAlarmValidator:
             self.__append_issue(key, f"Error validating threshold: {str(e)}")
             return 0.0
         
-        if not isinstance(threshold, (int, float)):
-            self.__append_issue(key, f"Threshold must be a number, got {type(threshold).__name__}")
-        else:
-            if min_value is not None and threshold < min_value:
-                self.__append_issue(key, f"Threshold must be at least {min_value}, got {threshold}")
-            
-            if max_value is not None and threshold > max_value:
-                self.__append_issue(key, f"Threshold must be at most {max_value}, got {threshold}")
+        if min_value is not None and threshold < min_value:
+            self.__append_issue(key, f"Threshold must be at least {min_value}, got {threshold}")
+        
+        if max_value is not None and threshold > max_value:
+            self.__append_issue(key, f"Threshold must be at most {max_value}, got {threshold}")
             
         return float(threshold)
 
@@ -488,6 +487,7 @@ class AwsAlarmValidator:
         
         if not isinstance(namespace, str):
             self.__issues.append(f"[\"namespace\"] Namespace must be a string.")
+            return ""
         
         try:
             namespace = self.__vars.substitute(namespace, fail_if_missing=not self.__is_preview)
@@ -498,4 +498,4 @@ class AwsAlarmValidator:
     
     
     def __append_issue(self, key: str, message: str) -> None:
-        self.__append_issue(key, f"{message}")
+        self.__issues.append(f"[\"{key}\"] {message}")
