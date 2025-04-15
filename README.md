@@ -29,6 +29,23 @@ Python library for creating AWS CloudWatch alerts automatically based on predefi
    ✓ OK!
    ```
 
+## Code Quality and Testing
+
+Before running any of the following commands, ensure that your virtual environment is activated:
+
+```
+source ./venv/bin/activate
+```
+
+### Test and Lint Commands
+
+| Task                         | Command                                                 |
+|:-----------------------------|:--------------------------------------------------------|
+| Run Unit Tests with Coverage | `pytest --cov=alertalot --cov-report=html --cov-branch` |
+| Lint Alertalot Code          | `pylint alertalot --rcfile=.pylintrc --fail-under=10`   |
+| Lint Test Code               | `pylint tests --rcfile=tests/.pylintrc --fail-under=10` |
+
+
 ## Usage
 
 Alertalot can be run with various options to create CloudWatch alerts for AWS resources.
@@ -79,31 +96,16 @@ The template file defines the CloudWatch alarms to be created:
 
 ```yaml
 alarms:
-  - cpu:
-      metric-name: AWS / CPU Usage 1 minute / $INSTANCE_NAME / $INSTANCE_ID
-      alarm-name: $ALARM_ACTION_ARN
-      statistic: Average
-      period: 5 minutes
-      comparison-operator: GreaterThanOrEqualToThreshold
-      threshold: 70%
-      evaluation-periods: 1 minute
-      tags:
-        level: info
-      treat-missing-data: breaching
+  - type: ec2
+    alarm-name: AWS / CPU Usage 5 minute / $INSTANCE_NAME / $INSTANCE_ID
+    metric-name: CPUUtilization
+    alarm-actions: $ALARM_ACTION_ARN
+    statistic: Average
+    period: 5 minutes
+    comparison-operator: GreaterThanOrEqualToThreshold
+    threshold: 70%
+    evaluation-periods: 1 minute
+    tags:
+      level: info
+    treat-missing-data: breaching
 ```
-
-## Code Quality and Testing
-
-Before running any of the following commands, ensure that your virtual environment is activated:
-
-```
-source ./venv/bin/activate
-```
-
-### Test and Lint Commands
-
-| Task                         | Command                                                 |
-|:-----------------------------|:--------------------------------------------------------|
-| Run Unit Tests with Coverage | `pytest --cov=alertalot`                                |
-| Lint Alertalot Code          | `pylint alertalot --rcfile=.pylintrc --fail-under=10`   |
-| Lint Test Code               | `pylint tests --rcfile=tests/.pylintrc --fail-under=10` |
