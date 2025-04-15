@@ -107,9 +107,9 @@ def test__validate_period__not_multiple_of_60():
 
 def test__validate_evaluation_periods__valid():
     test_cases = [
-        ("1", 60),
-        ("5", 300),
-        ("10", 600)
+        ("1", 1),
+        ("5", 5),
+        ("10", 10)
     ]
     
     for periods_str, expected_value in test_cases:

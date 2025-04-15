@@ -7,7 +7,7 @@ alarms:
     period: 5 minutes
     comparison-operator: GreaterThanOrEqualToThreshold
     threshold: 70%
-    evaluation-periods: 1 minute
+    evaluation-periods: 1
     tags:
       level: info
     treat-missing-data: breaching
