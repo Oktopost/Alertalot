@@ -57,7 +57,6 @@ class CreateAlarmAction:
             
         if "dimensions" in config:
             dim_dict = config.get("dimensions", {})
-            print(dim_dict)
             cloudwatch_config["Dimensions"] = [{"Name": key, "Value": value} for key, value in dim_dict.items()]
         
         output.print_bullet("Alarm configuration:", level=OutputLevel.VERBOSE)
