@@ -198,7 +198,8 @@ class AwsAlarmValidator:
 
     def validate_evaluation_periods(self) -> int:
         """
-        Validates the evaluation periods value.
+        Validates the evaluation periods value. It defines how many consecutive periods the
+        condition must be met for the alarm to go into the ALARM state.
         
         Returns:
             int: The number of evaluation periods
@@ -207,7 +208,7 @@ class AwsAlarmValidator:
         periods = self.__config[key]
         
         try:
-            int_value = str2time(periods)
+            int_value = int(periods)
             
             if int_value <= 0:
                 self.__append_issue(key, f"Evaluation periods must be positive, got {int_value}")
