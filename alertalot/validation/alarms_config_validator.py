@@ -109,8 +109,7 @@ class AlarmsConfigValidator:
             
             validator = AwsAlarmValidator(alarm_config, self.__vars, is_preview=not is_strict)
             
-            validator.validate_required_keys(AlarmsConfigValidator.__get_required_alarm_keys())
-            validator.validate_unknown_keys(
+            validator.validate_keys(
                 AlarmsConfigValidator.__get_required_alarm_keys(),
                 AlarmsConfigValidator.__get_optional_alarm_keys())
             
