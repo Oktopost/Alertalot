@@ -44,7 +44,7 @@ class CreateAlarmAction:
                 "Value": entity_id
             }]
         }
-
+        
         if "alarm-actions" in config:
             cloudwatch_config["ActionsEnabled"] = True
             cloudwatch_config["AlarmActions"] = config["alarm-actions"]

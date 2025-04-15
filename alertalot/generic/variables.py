@@ -13,7 +13,7 @@ class Variables:
     """
     
     # Extract values like $INSTANCE_ID from a parameter string
-    __VARIABLE_REGEX = r"\$[a-zA-Z0-9_-]+(?![a-zA-Z0-9_-])"
+    __VARIABLE_REGEX = r"\$[a-zA-Z0-9_]+(?![a-zA-Z0-9_])"
     
     
     def __init__(self, variables: dict|None = None):

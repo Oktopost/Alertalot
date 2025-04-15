@@ -1,6 +1,7 @@
 alarms:
-  - alarm-name: AWS / CPU Usage 5 minute / $INSTANCE_NAME / $INSTANCE_ID
-    metric-name: cpu
+  - type: ec2
+    alarm-name: AWS / CPU Usage 5 minute / $INSTANCE_NAME / $INSTANCE_ID
+    metric-name: CPUUtilization
     alarm-actions: $ALARM_ACTION_ARN
     statistic: Average
     period: 5 minutes
@@ -9,5 +10,4 @@ alarms:
     evaluation-periods: 1 minute
     tags:
       level: info
-      name: $abc
     treat-missing-data: breaching

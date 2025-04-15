@@ -47,10 +47,7 @@ def try_percentage(value: str) -> float | None:
         return 1.0
     
     try:
-        float_value = float(value)
-        
-        if 0.0 <= float_value <= 1.0:
-            return float_value
+        return float(value)
     
     except ValueError:
         pass

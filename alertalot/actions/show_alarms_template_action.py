@@ -4,6 +4,7 @@ from alertalot.actions.sub_actions.load_variables_file_action import LoadVariabl
 from alertalot.generic.variables import Variables
 from alertalot.generic.args_object import ArgsObject
 from alertalot.generic.output import Output, OutputLevel
+from alertalot.entities.aws_entity_factory import AwsEntityFactory
 
 
 def execute(run_args: ArgsObject, output: Output):
@@ -21,10 +22,7 @@ def execute(run_args: ArgsObject, output: Output):
         output (Output): Output object to use
     """
     variables = Variables()
-    entity_object = run_args.get_aws_entity()
-    
-    if entity_object is None:
-        raise ValueError("Either entity type must be specified, or entity ID must be provided")
+    entity_object = AwsEntityFactory.from_args(run_args)
     
     if run_args.template_file is None:
         raise ValueError("No template file provided. Missing the --template-file argument.")
@@ -32,7 +30,7 @@ def execute(run_args: ArgsObject, output: Output):
     if run_args.vars_file:
         variables.update(LoadVariablesFileAction.execute(run_args, output))
     
-    if run_args.ec2_id is not None:
+    if entity_object is not None:
         target = LoadTargetAction.execute(run_args, output)
         values = entity_object.get_resource_values(target)
         

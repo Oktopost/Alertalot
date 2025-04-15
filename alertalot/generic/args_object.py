@@ -1,8 +1,5 @@
 import boto3
 
-from alertalot.entities.base_aws_entity import BaseAwsEntity
-from alertalot.entities.aws_ec2_entity import AwsEc2Entity
-
 
 class ArgsObject:
     """
@@ -157,17 +154,3 @@ class ArgsObject:
             bool: True if strict flag is set.
         """
         return self.__args.strict
-
-    
-    def get_aws_entity(self) -> BaseAwsEntity | None:
-        """
-        Get the entity object based on the type of the argument passed.
-        
-        Returns:
-            BaseAwsEntity: The entity object.
-            None: If no entity ID flag found.
-        """
-        if self.ec2_id is not None:
-            return AwsEc2Entity()
-        
-        return None

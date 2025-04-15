@@ -3,6 +3,7 @@ from typing import Any
 from alertalot.generic.output import Output
 from alertalot.generic.args_object import ArgsObject
 from alertalot.generic.variables import Variables
+from alertalot.entities.aws_entity_factory import AwsEntityFactory
 
 
 class LoadTargetAction:
@@ -20,7 +21,10 @@ class LoadTargetAction:
             output (Output): Output object to use.
             variables (Variables | None): Variables object to update, if passed.
         """
-        entity_object = run_args.get_aws_entity()
+        entity_object = AwsEntityFactory.from_args(run_args)
+        
+        if entity_object is None:
+            raise ValueError("Target must be provided. Missing id argument.")
         
         output.print_step(f"Loading instance {run_args.ec2_id}...")
         data = output.spinner(lambda: entity_object.load_entity(run_args.ec2_id))

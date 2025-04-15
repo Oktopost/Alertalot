@@ -9,6 +9,7 @@ def test__percentage__valid():
     assert percentage("23.4%") == pytest.approx(0.234)
     assert percentage("0.234") == pytest.approx(0.234)
     assert percentage("0.0") == pytest.approx(0.0)
+    assert percentage("50") == pytest.approx(50.0)
     assert percentage("0") == 0
     assert percentage("100%") == 1.0
     assert percentage("1") == 1.0
@@ -34,9 +35,7 @@ def test__percentage__non_string_input():
     assert percentage(1) == 1.0
     assert percentage(0) == 0.0
     assert percentage(0.234) == pytest.approx(0.234)
-    
-    with pytest.raises(ValueError, match="is not a valid percentage expression"):
-        percentage(23)
+    assert percentage(23) == pytest.approx(23.0)
 
 
 def test__try_percentage__valid():
@@ -63,7 +62,7 @@ def test__try_percentage__non_string_input():
     assert try_percentage(1) == 1.0
     assert try_percentage(0) == 0.0
     assert try_percentage(0.234) == pytest.approx(0.234)
-    assert try_percentage(23) is None
+    assert try_percentage(23) == pytest.approx(23)
 
 
 def test__try_str2time__valid_inputs():

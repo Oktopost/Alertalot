@@ -3,6 +3,9 @@ from typing import Any
 from alertalot.generic.variables import Variables
 from alertalot.entities.base_aws_entity import BaseAwsEntity
 from alertalot.validation.aws_alarm_validator import AwsAlarmValidator
+from alertalot.entities.aws_entity_factory import AwsEntityFactory
+from alertalot.generic.target_type import TargetType
+from alertalot.entities.aws_generic_entity import AwsGenericEntity
 
 
 class AlarmsConfigValidator:
@@ -16,18 +19,15 @@ class AlarmsConfigValidator:
     
     def __init__(
             self,
-            entity: BaseAwsEntity,
             variables: Variables,
             config: dict[str, Any] | Any) -> None:
         """
         Initialize the alarms configuration validator.
         
         Args:
-            entity (BaseAwsEntity): The AWS entity that will be used to validate entity-specific alarm configurations
             variables (Variables): Parameters object used for variable substitution in alarm configurations
             config (dict[str, Any] | Any): The raw alarm configuration to validate
         """
-        self.__entity = entity
         self.__vars = variables
         self.__config = config
         self.__parsed_config = None
@@ -103,23 +103,30 @@ class AlarmsConfigValidator:
             if not self.__validate_alarm_entry_type(alarm_config, i):
                 continue
             
-            parsed_alarm_config = {}
+            entity = self.__validate_entity_type(alarm_config)
+            
+            alarm_config = alarm_config | entity.get_additional_config()
             
             validator = AwsAlarmValidator(alarm_config, self.__vars, is_preview=not is_strict)
             
-            validator.validate_required_keys(self.__entity.get_required_alarm_keys())
-            validator.validate_unknown_keys(
-                self.__entity.get_required_alarm_keys(),
-                self.__entity.get_optional_alarm_keys())
+            validator.validate_keys(
+                AlarmsConfigValidator.__get_required_alarm_keys(),
+                AlarmsConfigValidator.__get_optional_alarm_keys())
             
             if not validator.issues_found:
-                parsed_alarm_config = self.__entity.validate_alarm(validator)
+                parsed_alarm_config = (
+                    {"type": self.__get_type(alarm_config)} |
+                    entity.validate_alarm(validator))
+            
+                if not validator.issues_found:
+                    parsed_config.append(parsed_alarm_config)
             
             if validator.issues_found:
                 for issue in validator.issues:
-                    self.__issues.append(f"[\"alarms\"][{i}][{issue}")
-            else:
-                parsed_config.append(parsed_alarm_config)
+                    if len(issue) > 0 and issue[0] != '[':
+                        issue = ' ' + issue
+                    
+                    self.__issues.append(f"[\"alarms\"][{i}]{issue}")
             
         if not self.has_issues:
             self.__parsed_config = parsed_config
@@ -156,3 +163,72 @@ class AlarmsConfigValidator:
             return False
         
         return True
+    
+    
+    def __get_type(self, alarm_config: dict[str, Any]) -> str:
+        """
+        Get the type of the alarm's target entity.
+        
+        Args:
+            alarm_config (dict[str, Any]): The alarm configuration
+
+        Returns:
+            str: The type of the alarm's target entity.
+        """
+        if "type" in alarm_config:
+            return alarm_config["type"]
+        
+        return TargetType.GENERIC.value
+    
+    def __validate_entity_type(self, alarm_entry: dict[str, Any]) -> BaseAwsEntity:
+        """
+        Return the target entity type of the current alarm configuration.
+        
+        Args:
+            alarm_entry (dict[str, Any]): The alarm entry to use.
+
+        Returns:
+            BaseAwsEntity: The entity type to use.
+        """
+        if "type" not in alarm_entry:
+            return AwsGenericEntity()
+        
+        target_type = TargetType.require(alarm_entry["type"])
+        
+        return AwsEntityFactory.from_type(target_type)
+
+
+    @staticmethod
+    def __get_required_alarm_keys() -> list[str]:
+        """
+        Get the list of required keys for alarms.
+        
+        Returns:
+            list[str]: List of required alarm keys
+        """
+        return [
+            "metric-name",
+            "alarm-name",
+            "statistic",
+            "period",
+            "comparison-operator",
+            "threshold",
+            "evaluation-periods"
+        ]
+    
+    @staticmethod
+    def __get_optional_alarm_keys() -> list[str]:
+        """
+        Get the list of optional keys for alarms.
+        
+        Returns:
+            list[str]: List of optional alarm keys
+        """
+        return [
+            "alarm-actions",
+            "tags",
+            "treat-missing-data",
+            "unit",
+            "namespace",
+            "dimensions"
+        ]
