@@ -29,13 +29,23 @@ def test__percentage__invalid():
         percentage("-1%")
 
 
-# noinspection PyTypeChecker
 def test__percentage__non_string_input():
     assert percentage(0.5) == 0.5
     assert percentage(1) == 1.0
     assert percentage(0) == 0.0
     assert percentage(0.234) == pytest.approx(0.234)
     assert percentage(23) == pytest.approx(23.0)
+    
+
+def test__percentage__mult_passed_for_string_value():
+    assert percentage("50%", mult=2.4) == 0.5 * 2.4
+    assert percentage("100%", 100.0) == 100.0
+
+
+def test__percentage__mult_passed_for_int_value():
+    assert percentage(0.5, mult=2.4) == 0.5
+    assert percentage(100, 100.0) == 100.0
+    assert percentage(1, 100.0) == 1.0
 
 
 def test__try_percentage__valid():

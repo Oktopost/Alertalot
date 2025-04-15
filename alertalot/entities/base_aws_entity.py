@@ -99,7 +99,7 @@ class BaseAwsEntity(ABC):
             "statistic":            validator.validate_statistic(),
             "period":               validator.validate_period(),
             "comparison-operator":  validator.validate_comparison_operator(),
-            "threshold":            validator.validate_threshold(min_value=0.0, max_value=1.0),
+            "threshold":            validator.validate_threshold(min_value=0.0),
             "evaluation-periods":   validator.validate_evaluation_periods(),
         }
         

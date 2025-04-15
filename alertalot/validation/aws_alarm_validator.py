@@ -376,7 +376,7 @@ class AwsAlarmValidator:
         if len(metric_name.encode('utf-8')) > 255:
             self.__append_issue(key, f"Metric name exceeds maximum length of 255 bytes: '{metric_name}'")
         
-        if allowed is not None:
+        if allowed is not None and len(allowed):
             if metric_name not in allowed:
                 self.__append_issue(key, f"Metric '{metric_name}', is not a valid metric name")
         
@@ -430,17 +430,30 @@ class AwsAlarmValidator:
         
         threshold_value = self.__config[key]
         
-        try:
-            threshold = percentage(threshold_value)
-        except ValueError as e:
-            self.__append_issue(key, f"Error validating threshold: {str(e)}")
+        if isinstance(threshold_value, str):
+            threshold_value = threshold_value.strip()
+            
+            try:
+                if threshold_value.endswith('%'):
+                    threshold = percentage(threshold_value, mult=100)
+                else:
+                    threshold = str2bytes(threshold_value)
+            
+            except ValueError as e:
+                self.__append_issue(key, f"Error validating threshold: {str(e)}")
+                return 0.0
+            
+        elif isinstance(threshold_value, (float, int)):
+            threshold = float(threshold_value)
+        else:
+            self.__append_issue(key, f"Threshold must be a string, float or int, got {threshold_value}")
             return 0.0
         
         if min_value is not None and threshold < min_value:
-            self.__append_issue(key, f"Threshold must be at least {min_value}, got {threshold}")
+            self.__append_issue(key, f"Threshold must be at least {min_value}, got {threshold_value}")
         
         if max_value is not None and threshold > max_value:
-            self.__append_issue(key, f"Threshold must be at most {max_value}, got {threshold}")
+            self.__append_issue(key, f"Threshold must be at most {max_value}, got {threshold_value}")
             
         return float(threshold)
 

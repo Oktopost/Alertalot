@@ -347,18 +347,59 @@ def test__validate_alarm_name__missing_variable():
     assert any("Variable 'SERVICE' not found" in issue for issue in validator.issues)
 
 
-def test__validate_threshold__valid():
+def test__validate_threshold__valid_prc():
     config = {"threshold": "80%"}
     validator = AwsAlarmValidator(config, Variables())
     
     result = validator.validate_threshold()
     
-    assert result == 0.8
+    assert result == 80.0
     assert not validator.issues_found
+
+
+def test__validate_threshold__string_stripped():
+    config = {"threshold": "  80%   "}
+    validator = AwsAlarmValidator(config, Variables())
     
+    result = validator.validate_threshold()
+    
+    assert result == 80.0
+    assert not validator.issues_found
+
+
+def test__validate_threshold__valid_suze():
+    config = {"threshold": "123 KB"}
+    validator = AwsAlarmValidator(config, Variables())
+    
+    result = validator.validate_threshold()
+    
+    assert result == 123.0 * 1024.0
+    assert not validator.issues_found
+
+
+def test__validate_threshold__valid_number():
+    config = {"threshold": 600000000}
+    validator = AwsAlarmValidator(config, Variables())
+    
+    result = validator.validate_threshold()
+    
+    assert result == 600000000.0
+    assert result != 60000000000.0
+    assert not validator.issues_found
+
 
 def test__validate_threshold__invalid_value():
     config = {"threshold": "abcd"}
+    validator = AwsAlarmValidator(config, Variables())
+    
+    result = validator.validate_threshold()
+    
+    assert result == 0.0
+    assert validator.issues_found
+
+
+def test__validate_threshold__invalid_struct():
+    config = {"threshold": [123]}
     validator = AwsAlarmValidator(config, Variables())
     
     result = validator.validate_threshold()

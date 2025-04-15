@@ -36,8 +36,8 @@ def execute(run_args: ArgsObject, output: Output):
     start_time = time.time()
     
     for config in validator.parsed_config:
-        CreateAlarmAction.execute(output, config, run_args.ec2_id)
-    
+        CreateAlarmAction.execute(output, config)
+        
     runtime = time.time() - start_time
     
     # 5. Output success

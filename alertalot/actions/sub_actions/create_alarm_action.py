@@ -13,8 +13,7 @@ class CreateAlarmAction:
     @staticmethod
     def execute(
             output: Output,
-            config: dict[str, Any],
-            entity_id: str
+            config: dict[str, Any]
     ) -> None:
         """
         Create a single Alarm for an entity
@@ -22,7 +21,6 @@ class CreateAlarmAction:
         Args:
             output (Output): Output object to use
             config (dict[str, Any]): The alarm's configuration
-            entity_id (str): The target entity ID
         """
         cloudwatch = boto3.client('cloudwatch')
         name = config["alarm-name"]
@@ -34,16 +32,14 @@ class CreateAlarmAction:
             "ComparisonOperator": config["comparison-operator"],
             "EvaluationPeriods": config["evaluation-periods"],
             "MetricName": config["metric-name"],
-            "Namespace": "AWS/EC2",
             "Period": config["period"],
             "Statistic": config["statistic"],
-            "Threshold": config["threshold"] * 100,
-            "ActionsEnabled": False,
-            "Dimensions": [{
-                "Name": "InstanceId",
-                "Value": entity_id
-            }]
+            "Threshold": config["threshold"],
+            "ActionsEnabled": False
         }
+        
+        if "namespace" in config:
+            cloudwatch_config["Namespace"] = config["namespace"]
         
         if "alarm-actions" in config:
             cloudwatch_config["ActionsEnabled"] = True
@@ -58,6 +54,11 @@ class CreateAlarmAction:
         if "tags" in config:
             tags_dict = config.get("tags", {})
             cloudwatch_config["Tags"] = [{"Key": key, "Value": value} for key, value in tags_dict.items()]
+            
+        if "dimensions" in config:
+            dim_dict = config.get("dimensions", {})
+            print(dim_dict)
+            cloudwatch_config["Dimensions"] = [{"Name": key, "Value": value} for key, value in dim_dict.items()]
         
         output.print_bullet("Alarm configuration:", level=OutputLevel.VERBOSE)
         output.print_yaml(cloudwatch_config, level=OutputLevel.VERBOSE)

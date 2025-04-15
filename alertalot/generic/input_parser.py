@@ -28,23 +28,27 @@ _SIZE_UNITS_MULTIPLIERS = {
 }
 
 
-def try_percentage(value: str) -> float | None:
+def try_percentage(value: str | float | int, mult: float = 1.0) -> float | None:
     """
     Attempts to convert a string to a percentage value.
     
     Args:
-        value (str): String representation of a percentage
+        value (str | float | int): String representation of a percentage
+        mult (float):
+            The value of 100%. The % value in string, will be multiplied by this value.
+            If the value passed is not a string with %, no multiplication is done.
     
     Returns:
-        float | None: The percentage as a float between 0 and 1, or None if conversion fails
+        float | None: The percentage as a float, or None if conversion fails
     """
+    mult = float(mult)
     value = str(value)
     
     if re.match(_PERCENT_REGEX, value):
-        return float(value.strip('%')) / 100.0
+        return float(value.strip('%')) / 100.0 * mult
     
     if value == '100%':
-        return 1.0
+        return 1.0 * mult
     
     try:
         return float(value)
@@ -55,20 +59,23 @@ def try_percentage(value: str) -> float | None:
     return None
 
 
-def percentage(value: str) -> float:
+def percentage(value: str | float | int, mult: float = 1.0) -> float:
     """
     Converts a string to a percentage value.
     
     Args:
-        value (str): String representation of a percentage
+        value (str | float | int): String representation of a percentage
+        mult (float):
+            The value of 100%. The % value in string, will be multiplied by this value.
+            If the value passed is not a string with %, no multiplication is done.
     
     Returns:
-        float: The percentage as a float between 0 and 1
+        float: The percentage as a float value, 100% will be 100.0.
     
     Raises:
         ValueError: If the string cannot be converted to a percentage
     """
-    parsed_value = try_percentage(value)
+    parsed_value = try_percentage(value, mult)
     
     if parsed_value is None:
         raise ValueError(f"String '{value}', is not a valid percentage expression. Use 23.4% or 0.234 formats")
