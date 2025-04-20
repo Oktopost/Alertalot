@@ -13,7 +13,7 @@ def test__init__basic_args():
     mock_args.create_alarms = False
     mock_args.test_aws = True
     mock_args.trace = False
-    mock_args.vars_file = "path/to/vars.yaml"
+    mock_args.var_files = ["path/to/vars.yaml", "b.yaml"]
     mock_args.template_file = "path/to/template.yaml"
     mock_args.region = None
     mock_args.ec2_id = "i-1234567890abcdef0"
@@ -32,7 +32,7 @@ def test__init__basic_args():
     assert args_obj.create_alarms is False
     assert args_obj.test_aws is True
     assert args_obj.with_trace is False
-    assert args_obj.vars_file == "path/to/vars.yaml"
+    assert args_obj.var_files == ["path/to/vars.yaml", "b.yaml"]
     assert args_obj.template_file == "path/to/template.yaml"
     assert args_obj.region is None
     assert args_obj.ec2_id == "i-1234567890abcdef0"

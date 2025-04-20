@@ -45,7 +45,9 @@ def __create_args_object() -> argparse.ArgumentParser:
     
     parser.add_argument(
         "--vars-file", "--variables-file",
-        type=str,
+        action="append",
+        dest="var_files",
+        default=[],
         help="Relative path to the variables file to use")
     
     parser.add_argument(
@@ -54,7 +56,7 @@ def __create_args_object() -> argparse.ArgumentParser:
         type=__parse_key_value,
         dest="variables",
         default=[],
-        help="Key/value pairs to use for variables"
+        help="Key/value pair to use for variables"
     )
     
     parser.add_argument("--template-file", type=str, help="Relative path to the template file to use")
@@ -77,7 +79,7 @@ def __create_args_object() -> argparse.ArgumentParser:
         action="store_true",
         dest="strict",
         help="If set, the template must pass validation when parsing "
-             "and displaying parameters with the --show-variables command.")
+             "and displaying variables with the --show-variables command.")
     
     ##########
     # Output #
@@ -195,6 +197,6 @@ if __name__ == "__main__":
         out.print_list("▷  ", "red", e.issues, level=OutputLevel.QUITE)
         out.print_line(color="red")
         sys.exit(1)
-    except Exception as exception: # pylint: disable=W0718
+    except Exception as exception:  # pylint: disable=W0718
         out.print_error(exception, level=OutputLevel.QUITE)
         sys.exit(1)

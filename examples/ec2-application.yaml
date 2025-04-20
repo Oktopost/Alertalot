@@ -6,7 +6,7 @@ alarms:
     statistic: Average
     period: 5 minutes
     comparison-operator: GreaterThanOrEqualToThreshold
-    threshold: 70%
+    threshold: $CPU_LIMIT
     evaluation-periods: 1
     tags:
       level: info

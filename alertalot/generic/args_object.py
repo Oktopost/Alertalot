@@ -93,14 +93,14 @@ class ArgsObject:
         return self.__args.trace
     
     @property
-    def vars_file(self) -> str|None:
+    def var_files(self) -> list[str]:
         """
-        Path to the variables file to load.
+        List of variable files to load
         
         Returns:
-            str | None: The path to the file, or None if not provided
+            list[str]: The path to the files. Empty list if none provided.
         """
-        return self.__args.vars_file
+        return self.__args.var_files
     
     @property
     def template_file(self) -> str | None:

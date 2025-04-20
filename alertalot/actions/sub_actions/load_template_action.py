@@ -26,9 +26,6 @@ class LoadTemplateAction:
             variables (Variables): Parameters to use for substitution
             is_strict (bool): If True, failed the execution if template is invalid
         """
-        if run_args.vars_file is None:
-            raise ValueError("No variables file provided")
-        
         output.print_step(f"Loading template file {run_args.template_file}...")
         output.print_bullet("Using Variables:")
         output.print_key_value(variables)

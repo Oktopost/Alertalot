@@ -134,14 +134,13 @@ class Variables:
         return params
     
     
-    
     @staticmethod
-    def parse(file: str, region: str | None = None) -> "Variables":
+    def parse(files: list[str] | str, region: str | None = None) -> "Variables":
         """
         Parse a params file and return the Parameters object for it.
         
         Args:
-            file (str): Path to the file to parse
+            files (str): Path to the file to parse or a list of file paths.
             region (str|None):
                 If set, the configuration of the region will be also loaded and merged into the global config.
         
@@ -149,20 +148,25 @@ class Variables:
             Variables: the parameters set, loaded from the file
         """
         params = Variables()
-        parsed = load(file)
         
-        current_file_directory = os.path.dirname(os.path.abspath(__file__))
-        full_path = os.path.join(current_file_directory, "../../schemes/params.json")
+        if isinstance(files, str):
+            files = [files]
         
-        with open(full_path, "r", encoding="utf-8") as f:
-            scheme = json.load(f)
-        
-        jsonschema.validate(parsed, scheme)
-        
-        if "global" in parsed["params"]:
-            params.update(parsed["params"]["global"])
-        
-        if region is not None and region in parsed["params"]:
-            params.update(parsed["params"][region])
-        
+        for file in files:
+            parsed = load(file)
+            
+            current_file_directory = os.path.dirname(os.path.abspath(__file__))
+            full_path = os.path.join(current_file_directory, "../../schemes/params.json")
+            
+            with open(full_path, "r", encoding="utf-8") as f:
+                scheme = json.load(f)
+            
+            jsonschema.validate(parsed, scheme)
+            
+            if "global" in parsed["params"]:
+                params.update(parsed["params"]["global"])
+            
+            if region is not None and region in parsed["params"]:
+                params.update(parsed["params"][region])
+                
         return params

@@ -1,33 +1,35 @@
-from alertalot.generic.args_object import ArgsObject
-from alertalot.generic.variables import Variables
+import os
+
 from alertalot.generic.output import Output
+from alertalot.generic.variables import Variables
+from alertalot.generic.args_object import ArgsObject
 
 
-class LoadVariablesFileAction:
+class LoadVariableFilesAction:
     """
     Action responsible for loading the variables file.
     """
     @staticmethod
     def execute(run_args: ArgsObject, output: Output) -> Variables:
         """
-        Load the variables file.
+        Load all the variable files.
         
         Args:
             run_args (ArgsObject): CLI command line arguments.
             output (Output): Output object to use.
         """
-        if run_args.vars_file is None:
-            raise ValueError("No variables file provided")
+        if not run_args.var_files:
+            raise ValueError("No variable files provided")
         
-        output.print_step("Loading variables file...")
+        output.print_step("Loading variable files...")
         output.print_key_value({
             "Region": run_args.region,
-            "Variables File": run_args.vars_file,
+            "Variable Files": os.linesep.join(run_args.var_files),
         })
         
-        data = Variables.parse(run_args.vars_file, run_args.region)
+        data = Variables.parse(run_args.var_files, run_args.region)
         data.update(run_args.variables)
         
-        output.print_success("File loaded")
+        output.print_success("Files loaded")
         
         return data

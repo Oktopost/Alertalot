@@ -1,17 +1,25 @@
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Callable
 
 from alertalot.generic.input_parser import (
     percentage,
     str2time,
     str2bytes
 )
+
 from alertalot.generic.variables import Variables
+
+
+class _Range:
+    def __init__(self, min_value: float | None = None, max_value: float | None = None ):
+        self.min_value = min_value
+        self.max_value = max_value
 
 
 class AwsAlarmValidator:
     """
     Validator for AWS CloudWatch Alarm configurations.
     """
+    
     
     VALID_COMPARISON_OPERATORS: ClassVar[list[str]] = [
         "GreaterThanOrEqualToThreshold",
@@ -150,13 +158,9 @@ class AwsAlarmValidator:
         Returns:
             str: The validated comparison operator
         """
-        key = "comparison-operator"
-        operator = self.__config[key]
-        
-        if operator not in self.VALID_COMPARISON_OPERATORS:
-            self.__append_issue(key, f"Invalid comparison operator: '{operator}'.")
-        
-        return operator
+        return self.__get_string(
+            "comparison-operator",
+            one_of=self.VALID_COMPARISON_OPERATORS)
 
     def validate_statistic(self) -> str:
         """
@@ -165,15 +169,11 @@ class AwsAlarmValidator:
         Returns:
             str: The validated statistic
         """
-        key = "statistic"
-        statistic = self.__config[key]
-        
-        if statistic not in self.VALID_STATISTICS:
-            self.__append_issue(key, f"Invalid statistic: '{statistic}'.")
-        
-        return statistic
+        return self.__get_string(
+            "statistic",
+            one_of=self.VALID_STATISTICS)
 
-    def validate_period(self, key = "period") -> int:
+    def validate_period(self) -> int:
         """
         Validates and converts a period string to seconds.
         
@@ -226,13 +226,9 @@ class AwsAlarmValidator:
         Returns:
             str: The validated treat-missing-data value
         """
-        key = "treat-missing-data"
-        value = self.__config[key]
-        
-        if value not in self.VALID_MISSING_DATA_TREATMENTS:
-            self.__append_issue(key, f"Invalid treat-missing-data value: '{value}'.")
-        
-        return value
+        return self.__get_string(
+            "treat-missing-data",
+            one_of=self.VALID_MISSING_DATA_TREATMENTS)
 
     def validate_alarm_actions(self) -> list[str]:
         """
@@ -263,7 +259,7 @@ class AwsAlarmValidator:
                 continue
             
             try:
-                action = self.__vars.substitute(action, fail_if_missing=not self.__is_preview)
+                action = self.__substitute(action)
             except KeyError as e:
                 self.__issues.append(f"[\"{key}\"][{i}] {e}")
             
@@ -303,7 +299,7 @@ class AwsAlarmValidator:
                 self.__append_issue(key, f"Tag key must be max 128 characters, got {len(tag_key)} characters")
             
             try:
-                validated_tags[tag_key] = self.__vars.substitute(value, fail_if_missing=not self.__is_preview)
+                validated_tags[tag_key] = self.__substitute(value)
             except KeyError as e:
                 self.__issues.append(f"\"{key}\"] {e}")
         
@@ -338,7 +334,7 @@ class AwsAlarmValidator:
                 self.__append_issue(key, f"Dimension key must be max 128 characters, got {len(tag_key)}")
             
             try:
-                validated_dimension[tag_key] = self.__vars.substitute(value, fail_if_missing=not self.__is_preview)
+                validated_dimension[tag_key] = self.__substitute(value)
             except KeyError as e:
                 self.__issues.append(f"\"{key}\"] {e}")
         
@@ -356,19 +352,12 @@ class AwsAlarmValidator:
         """
         key = "metric-name"
         
-        metric_name = self.__config[key]
+        metric_name = self.__get_string(
+            key,
+            one_of=allowed)
         
-        if not isinstance(metric_name, str):
-            self.__append_issue(
-                key,
-                f"Metric name must be a non-empty string, got '{type(metric_name).__name__}'")
+        if metric_name is None:
             return ""
-        
-        try:
-            metric_name = self.__vars.substitute(metric_name, fail_if_missing=not self.__is_preview)
-        except KeyError as e:
-            self.__append_issue(key, f"{str(e)}")
-            return metric_name
         
         if self.__is_preview:
             return metric_name
@@ -399,7 +388,7 @@ class AwsAlarmValidator:
             return ""
         
         try:
-            alarm_name = self.__vars.substitute(alarm_name, fail_if_missing=not self.__is_preview)
+            alarm_name = self.__substitute(alarm_name)
         except KeyError as e:
             self.__append_issue(key, f"{str(e)}")
             return alarm_name
@@ -411,7 +400,7 @@ class AwsAlarmValidator:
             self.__append_issue(key, f"Alarm name exceeds maximum length of 255 bytes: '{alarm_name}'")
         
         return alarm_name
-
+    
     def validate_threshold(
             self,
             min_value: float | None = None,
@@ -426,54 +415,13 @@ class AwsAlarmValidator:
         Returns:
             float: The validated threshold value
         """
-        key = "threshold"
         
-        threshold_value = self.__config[key]
         
-        if isinstance(threshold_value, str):
-            threshold_value = threshold_value.strip()
-            
-            try:
-                if threshold_value.endswith('%'):
-                    threshold = percentage(threshold_value, mult=100)
-                else:
-                    threshold = str2bytes(threshold_value)
-            
-            except ValueError as e:
-                self.__append_issue(key, f"Error validating threshold: {str(e)}")
-                return 0.0
-            
-        elif isinstance(threshold_value, (float, int)):
-            threshold = float(threshold_value)
-        else:
-            self.__append_issue(key, f"Threshold must be a string, float or int, got {threshold_value}")
-            return 0.0
-        
-        if min_value is not None and threshold < min_value:
-            self.__append_issue(key, f"Threshold must be at least {min_value}, got {threshold_value}")
-        
-        if max_value is not None and threshold > max_value:
-            self.__append_issue(key, f"Threshold must be at most {max_value}, got {threshold_value}")
-            
-        return float(threshold)
-
-    def validate_byte_size(self) -> int:
-        """
-        Validates and converts a byte size string to bytes.
-        
-        Returns:
-            int: Size in bytes
-        """
-        key = "size"
-        
-        size = self.__config[key]
-        
-        try:
-            return str2bytes(size)
-        except ValueError as e:
-            self.__append_issue(key, f"Error validating byte size: {str(e)}")
-            return 0
-
+        return self.__get_float(
+            "threshold",
+            min_max=_Range(min_value, max_value),
+            str_formatting=self.__from_prc_or_size)
+    
     def validate_unit(self) -> str:
         """
         Validates that the unit is a valid CloudWatch metric unit.
@@ -504,12 +452,136 @@ class AwsAlarmValidator:
             return ""
         
         try:
-            namespace = self.__vars.substitute(namespace, fail_if_missing=not self.__is_preview)
+            namespace = self.__substitute(namespace)
         except KeyError as e:
             self.__issues.append(f"[\"namespace\"] {e}")
         
         return namespace
     
+    
+    def __get_float(
+            self,
+            key: str,
+            *,
+            default: float | None = 0.0,
+            min_max: _Range = None,
+            str_formatting: Callable[[str], float] | None = None) -> float | None | str:
+        
+        value = self.__config[key] if key in self.__config else None
+        
+        if value is None:
+            self.__append_issue(key, f"Missing value.")
+            return default
+        
+        if isinstance(value, str):
+            try:
+                value = self.__str_to_float(key, value, str_formatting)
+            except ValueError:
+                return default
+            
+        elif isinstance(value, int):
+            value = float(value)
+            
+        elif isinstance(value, float):
+            pass
+        else:
+            self.__append_issue(key, f"Expecting string, float or int, got {value}")
+            return 0.0
+        
+        self.__validate_range(key, value, min_max)
+        
+        return value
+    
+    def __str_to_float(
+            self,
+            key: str,
+            value: str,
+            str_formatting: Callable[[str], float] | None = None) -> float | None:
+        try:
+            value = self.__substitute(value)
+        except ValueError as e:
+            self.__append_issue(key, str(e))
+            raise e
+        
+        value = value.strip()
+        
+        if str_formatting is not None:
+            try:
+                value = str_formatting(value)
+            except ValueError as e:
+                self.__append_issue(key, f"Failed to cast value to float {str(e)}")
+                raise e
+        else:
+            try:
+                value = float(value)
+            except ValueError as e:
+                if self.__is_preview:
+                    return value
+                
+                self.__append_issue(key, f"Expecting a well formatted float or int, got '{value}'. Error {e}")
+                raise e
+        
+        return value
+    
+    
+    def __validate_range(
+            self,
+            key: str,
+            value: float | int,
+            min_max: _Range|None):
+        
+        min_value = min_max.min_value if min_max is not None else None
+        max_value = min_max.max_value if min_max is not None else None
+        
+        if min_value is not None and value < min_value:
+            self.__append_issue(key, f"Must be at least {min_value}, got {value}")
+        
+        if max_value is not None and value > max_value:
+            self.__append_issue(key, f"Must be at most {max_value}, got {value}")
+    
+    def __get_string(
+            self,
+            key: str,
+            *,
+            default: str | None = "",
+            one_of: list[str] | None = None) -> None | str:
+        
+        value = self.__config[key] if key in self.__config else None
+        
+        if value is None:
+            self.__append_issue(key, f"Missing value.")
+            return default
+        elif not isinstance(value, str):
+            self.__append_issue(key, f"Expecting a string, got: '{type(value).__name__}'.")
+            return default
+        elif len(value) == 0:
+            self.__append_issue(key, f"Expecting non-empty string.")
+            return default
+        
+        try:
+            value = self.__substitute(value)
+        except ValueError as e:
+            self.__append_issue(key, str(e))
+            return default
+        
+        if one_of is not None and len(one_of) > 0:
+            if value not in one_of:
+                self.__append_issue(key, f"Invalid value provided: '{value}'.")
+                return default
+        
+        return value
+    
+    def __from_prc_or_size(self, value: str) -> float:
+        if value.endswith('%'):
+            return percentage(value, mult=100)
+        else:
+            return float(str2bytes(value))
+    
+    def __substitute(self, what: Any) -> Any:
+        if not isinstance(what, str):
+            return what
+        
+        return self.__vars.substitute(what, fail_if_missing=not self.__is_preview)
     
     def __append_issue(self, key: str, message: str) -> None:
         self.__issues.append(f"[\"{key}\"] {message}")

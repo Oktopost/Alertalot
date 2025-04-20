@@ -1,0 +1,3 @@
+params:
+  global:
+    CPU_LIMIT: 75
