@@ -9,6 +9,18 @@ dependencies = [
     "jsonschema>=4.23.0",
     "rich>=14.0.0"
 ]
+description = "Python library for creating AWS CloudWatch alerts automatically based on predefined configurations"
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: System :: Monitoring"
+]
 
 [project.optional-dependencies]
 dev = [
@@ -17,5 +29,13 @@ dev = [
     "pylint>=3.3.4",
 ]
 
-[tool.setuptools]
-packages = ["alertalot"]
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["alertalot*"]
+
+[project.scripts]
+alertalot = "alertalot.main:main"
