@@ -1,7 +1,5 @@
 from typing import Any, ClassVar, Callable
 
-from attr.validators import min_len
-
 from alertalot.generic.input_parser import (
     percentage,
     str2time,
