@@ -181,6 +181,9 @@ def __execute(args_object: ArgsObject, output: Output) -> None:
 
 
 def main():
+    """
+    Main entry point for the application.
+    """
     args_obj = __parse_args()
     
     out = Output(
