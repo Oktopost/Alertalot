@@ -1,5 +1,7 @@
 from typing import Any, ClassVar, Callable
 
+from attr.validators import min_len
+
 from alertalot.generic.input_parser import (
     percentage,
     str2time,
@@ -181,21 +183,13 @@ class AwsAlarmValidator:
             int: The period in seconds
         """
         key = "period"
-        period = self.__config[key]
+        seconds = self.__get_int(key, default=0, min_max=_Range(60), str_formatting=str2time)
         
-        try:
-            seconds = str2time(period)
-        except ValueError as e:
-            self.__append_issue(key, f"{e}")
-            return 0
-        
-        if seconds < 60:
-            self.__append_issue(key, f"Period must be at least 60 seconds, got {seconds}")
-        elif seconds % 60 != 0:
+        if isinstance(seconds, int) and seconds % 60 != 0:
             self.__append_issue(key, f"Period must be a multiple of 60 seconds, got {seconds}")
         
         return seconds
-
+    
     def validate_evaluation_periods(self) -> int:
         """
         Validates the evaluation periods value. It defines how many consecutive periods the
@@ -204,20 +198,10 @@ class AwsAlarmValidator:
         Returns:
             int: The number of evaluation periods
         """
-        key = "evaluation-periods"
-        periods = self.__config[key]
-        
-        try:
-            int_value = int(periods)
-            
-            if int_value <= 0:
-                self.__append_issue(key, f"Evaluation periods must be positive, got {int_value}")
-            
-            return int_value
-        
-        except ValueError as e:
-            self.__append_issue(key, f"Invalid evaluation periods: '{periods}'. {str(e)}.")
-            return 0
+        return self.__get_int(
+            "evaluation-periods",
+            default=0,
+            min_max=_Range(1))
 
     def validate_treat_missing_data(self) -> str:
         """
@@ -431,7 +415,7 @@ class AwsAlarmValidator:
         """
         key = "unit"
         
-        unit = self.__config[key]
+        unit = self.__substitute(self.__config[key])
         
         if unit not in self.VALID_UNITS:
             self.__append_issue(key, f"Invalid unit: '{unit}'.")
@@ -538,6 +522,26 @@ class AwsAlarmValidator:
         
         if max_value is not None and value > max_value:
             self.__append_issue(key, f"Must be at most {max_value}, got {value}")
+    
+    def __get_int(
+            self,
+            key: str,
+            *,
+            default: int | None = 0.0,
+            min_max: _Range = None,
+            str_formatting: Callable[[str], float] | None = None) -> int | None | str:
+        
+        value = self.__get_float(
+            key,
+            default=float(default),
+            min_max=min_max,
+            str_formatting=str_formatting)
+        
+        # Can happen only in preview mod.
+        if isinstance(value, str):
+            return value
+        
+        return int(value)
     
     def __get_string(
             self,

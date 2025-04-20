@@ -69,6 +69,14 @@ def test__validate_period__valid():
         assert not validator.issues_found
 
 
+def test__validate_period__value_substituted():
+    config = {"period": "$VAL"}
+    validator = AwsAlarmValidator(config, Variables({"VAL": "2 minutes"}))
+    
+    assert validator.validate_period() == 2 * 60
+    assert not validator.issues_found
+
+
 def test__validate_period__invalid():
     config = {"period": "abc"}
     validator = AwsAlarmValidator(config, Variables())
@@ -92,7 +100,7 @@ def test__validate_period__too_short():
     validator.validate_period()
     
     assert validator.issues_found
-    assert any("Period must be at least 60 seconds" in issue for issue in validator.issues)
+    assert any("60" in issue for issue in validator.issues)
 
 
 def test__validate_period__not_multiple_of_60():
@@ -128,6 +136,14 @@ def test__validate_evaluation_periods__invalid():
     assert validator.issues_found
 
 
+def test__validate_evaluation_periods__value_substituted():
+    config = {"evaluation-periods": "$VAL"}
+    validator = AwsAlarmValidator(config, Variables({"VAL": 3}))
+    
+    assert validator.validate_evaluation_periods() == 3
+    assert not validator.issues_found
+
+
 def test__validate_evaluation_periods__not_positive():
     config = {"evaluation-periods": "0"}
     validator = AwsAlarmValidator(config, Variables())
@@ -135,7 +151,7 @@ def test__validate_evaluation_periods__not_positive():
     validator.validate_evaluation_periods()
     
     assert validator.issues_found
-    assert any("Evaluation periods must be positive" in issue for issue in validator.issues)
+    assert any("evaluation-periods" in issue for issue in validator.issues)
 
 
 def test__validate_treat_missing_data__valid():
@@ -147,6 +163,14 @@ def test__validate_treat_missing_data__valid():
         
         assert validator.validate_treat_missing_data() == treatment
         assert not validator.issues_found
+
+
+def test__validate_treat_missing_data__value_substituted():
+    config = {"treat-missing-data": "$VAL"}
+    validator = AwsAlarmValidator(config, Variables({"VAL": "notBreaching"}))
+    
+    assert validator.validate_treat_missing_data() == "notBreaching"
+    assert not validator.issues_found
 
 
 def test__validate_treat_missing_data__invalid():
@@ -164,6 +188,19 @@ def test__validate_alarm_actions__single_string():
     result = validator.validate_alarm_actions()
     
     assert result == ["arn:aws:sns:us-east-1:123456789012:MyTopic"]
+    assert not validator.issues_found
+
+
+def test__validate_alarm_actions__value_substituted():
+    config = {"alarm-actions": "arn:aws:sns:us-east-1:$ACCOUNT_ID:MyTopic"}
+    validator = AwsAlarmValidator(config, Variables({"ACCOUNT_ID": "1234"}))
+    
+    
+    result = validator.validate_alarm_actions()
+    
+    
+    assert isinstance(result, list)
+    assert result == ["arn:aws:sns:us-east-1:1234:MyTopic"]
     assert not validator.issues_found
 
 
@@ -456,6 +493,14 @@ def test__validate_unit__invalid():
     
     assert validator.issues_found
     assert any("Invalid unit" in issue for issue in validator.issues)
+
+
+def test__validate_unit__value_substituted():
+    config = {"unit": "$UNIT"}
+    validator = AwsAlarmValidator(config, Variables({"UNIT": "Bits/Second"}))
+    
+    assert validator.validate_unit() == "Bits/Second"
+    assert not validator.issues_found
 
 
 def test__validate_namespace__valid():
