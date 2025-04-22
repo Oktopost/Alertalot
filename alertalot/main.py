@@ -180,7 +180,10 @@ def __execute(args_object: ArgsObject, output: Output) -> None:
         sys.exit(1)
 
 
-if __name__ == "__main__":
+def main():
+    """
+    Main entry point for the application.
+    """
     args_obj = __parse_args()
     
     out = Output(
@@ -200,3 +203,7 @@ if __name__ == "__main__":
     except Exception as exception:  # pylint: disable=W0718
         out.print_error(exception, level=OutputLevel.QUITE)
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

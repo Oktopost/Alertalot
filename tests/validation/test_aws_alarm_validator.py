@@ -245,7 +245,7 @@ def test__validate_tags__invalid_type():
     
     result = validator.validate_tags()
     
-    assert result == {}
+    assert not result
     assert validator.issues_found
     assert any("Tags must be a dictionary" in issue for issue in validator.issues)
 
@@ -267,7 +267,7 @@ def test__validate_dimensions__invalid_type():
     
     result = validator.validate_dimensions()
     
-    assert result == {}
+    assert not result
     assert validator.issues_found
     assert any("Dimensions must be a dictionary" in issue for issue in validator.issues)
 

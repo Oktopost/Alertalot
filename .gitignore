@@ -1,5 +1,7 @@
 # Python
 venv
+venv_*
+dist
 __pycache__/
 alertalot.egg-info
 *.pyc
