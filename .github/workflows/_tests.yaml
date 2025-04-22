@@ -1,10 +1,10 @@
-name: Run Tests
+name: Unittests
 
 on:
-  push:
+  workflow_call:
 
 jobs:
-  test:
+  run:
     runs-on: ubuntu-latest
 
     steps:

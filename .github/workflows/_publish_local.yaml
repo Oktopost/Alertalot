@@ -1,11 +1,10 @@
-name: Publish to PyPi
+name: Publish - Local
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_call:
+
 jobs:
-  validate-distribution:
+  run:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,8 +27,14 @@ jobs:
       - name: Check distribution packages with twine
         run: twine check dist/*
 
-      - name: Upload to PyPi
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: twine upload dist/*
+      - name: Inspect wheel package contents
+        run: unzip -l dist/alertalot-*.whl
+
+      - name: Create test virtual environment
+        run: python -m venv venv_test
+
+      - name: Install package in test environment
+        run: |
+          source venv_test/bin/activate
+          pip install dist/alertalot-*-none-any.whl
+          alertalot --help

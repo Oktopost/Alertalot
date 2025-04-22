@@ -1,6 +1,6 @@
 [project]
 name = "alertalot"
-version = "0.1.0"
+version = "0.1.1"
 requires-python = ">=3.10"
 dependencies = [
     "boto3>=1.37.0",
@@ -11,11 +11,11 @@ dependencies = [
 ]
 description = "Python library for creating AWS CloudWatch alerts automatically based on predefined configurations"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE.txt"]
 classifiers = [
     "Programming Language :: Python :: 3.10",
     "Development Status :: 4 - Beta",
-    "License :: OSI Approved :: MIT License",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",

@@ -1,10 +1,10 @@
-name: Local Publish Validation
+name: Publish - PyPi
 
 on:
-  push:
+  workflow_call:
 
 jobs:
-  validate-distribution:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,14 +27,5 @@ jobs:
       - name: Check distribution packages with twine
         run: twine check dist/*
 
-      - name: Inspect wheel package contents
-        run: unzip -l dist/alertalot-*.whl
-
-      - name: Create test virtual environment
-        run: python -m venv venv_test
-
-      - name: Install package in test environment
-        run: |
-          source venv_test/bin/activate
-          pip install dist/alertalot-*-none-any.whl
-          alertalot --help
+      - name: Upload to PyPi
+        run: twine upload dist/alertalot-* -u __token__ -p ${{ secrets.PYPI_TOKEN }}

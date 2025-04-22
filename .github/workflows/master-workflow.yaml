@@ -1,0 +1,14 @@
+name: Run Tests On Master
+
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  unittests:
+    uses: ./.github/workflows/_tests.yaml
+
+  publish-local-test:
+    uses: ./.github/workflows/_publish_local.yaml
