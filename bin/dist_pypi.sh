@@ -6,17 +6,13 @@ if [ ! -d "alertalot" ] || [ ! -f ".pylintrc" ]; then
     exit 1
 fi
 
-rm -rf venv_test 2>/dev/null
+rm -rf venv_dist 2>/dev/null
 rm -rf dist 2>/dev/null
 
-python3.10 -m venv venv_test
-source venv_test/bin/activate
-pip install build twine
+python3.10 -m venv venv_dist
+source venv_dist/bin/activate
+pip install build
 python -m build
 
 twine check dist/*
-pip install dist/alertalot-*-none-any.whl
-alertalot --help
-
-rm -r venv_test
-rm -r dist
+twine upload dist/*

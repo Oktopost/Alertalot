@@ -21,6 +21,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: System :: Monitoring"
 ]
+authors = [
+    {name = "Alexey Puchkov", email = "alexey.pkv@gmail.com"}
+]
 
 [project.optional-dependencies]
 dev = [
@@ -30,7 +33,7 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=79.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
@@ -39,3 +42,6 @@ include = ["alertalot*"]
 
 [project.scripts]
 alertalot = "alertalot.main:main"
+
+[project.urls]
+Homepage = "https://github.com/Oktopost/Alertalot"

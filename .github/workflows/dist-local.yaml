@@ -1,4 +1,4 @@
-name: Build and Validate Python Package
+name: Local Publish Validation
 
 on:
   push:
