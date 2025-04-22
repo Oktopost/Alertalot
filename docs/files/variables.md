@@ -82,7 +82,7 @@ params:
 
 If you run Alertalot with `--region us-west-2`, the available variables would be:
 
-```
+```yaml
 OTHER_KEY: "other"
 MY_KEY: "B"
 WEST_KEY: "west"
