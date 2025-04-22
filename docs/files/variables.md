@@ -88,6 +88,6 @@ MY_KEY: "B"
 WEST_KEY: "west"
 ```
 
-## Important Note
+## Note
 
 Variable references within the variables file itself are not processed. For example, if you define `A: "B $C"` in your variables file, the value of `A` will be the literal string `"B $C"` even if `C` is defined elsewhere in the file.
