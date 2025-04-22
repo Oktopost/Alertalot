@@ -56,7 +56,7 @@ Under the `params` key, you can specify variables for different contexts:
 - `params.global`: Variables defined here are available regardless of the configured region.
 - `params.[region-name]`: Variables specific to an AWS region (e.g., `params.us-east-1`, `params.us-west-2`).
 
-Each region key contains a map of variable names to their values. These values can be strings, numbers, or other valid YAML data types.
+Each region key contains a map that associates variable names with their values. These values should be of type float, integer, or string.
 
 ## Variable Resolution
 
