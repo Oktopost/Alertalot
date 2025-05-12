@@ -7,6 +7,13 @@ class TargetType(Enum):
     """
     EC2 = "ec2"
     GENERIC = "generic"
+    ALB = "alb"
+    NLB = "nlb"
+    TARGET_GROUP = "target-group"
+    LAMBDA = "lambda"
+    EBS = "ebs"
+    S3 = "s3"
+    RDS = "rds"
     
     
     @classmethod
@@ -20,7 +27,6 @@ class TargetType(Enum):
         Returns:
             bool: True if target name exists and supported, False otherwise.
         """
-        
         return any(value == member.value for member in cls)
     
     @staticmethod

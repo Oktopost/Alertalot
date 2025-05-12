@@ -3,6 +3,13 @@ from alertalot.generic.target_type import TargetType
 from alertalot.entities.base_aws_entity import BaseAwsEntity
 from alertalot.entities.aws_ec2_entity import AwsEc2Entity
 from alertalot.entities.aws_generic_entity import AwsGenericEntity
+from alertalot.entities.aws_alb_entity import AwsAlbEntity
+from alertalot.entities.aws_nlb_entity import AwsNlbEntity
+from alertalot.entities.aws_target_group_entity import AwsTargetGroupEntity
+from alertalot.entities.aws_lambda_entity import AwsLambdaEntity
+from alertalot.entities.aws_ebs_entity import AwsEbsEntity
+from alertalot.entities.aws_s3_entity import AwsS3Entity
+from alertalot.entities.aws_rds_entity import AwsRdsEntity
 
 
 class AwsEntityFactory:
@@ -50,6 +57,20 @@ class AwsEntityFactory:
                 return AwsEc2Entity()
             case TargetType.GENERIC:
                 return AwsGenericEntity()
+            case TargetType.ALB:
+                return AwsAlbEntity()
+            case TargetType.NLB:
+                return AwsNlbEntity()
+            case TargetType.TARGET_GROUP:
+                return AwsTargetGroupEntity()
+            case TargetType.LAMBDA:
+                return AwsLambdaEntity()
+            case TargetType.EBS:
+                return AwsEbsEntity()
+            case TargetType.S3:
+                return AwsS3Entity()
+            case TargetType.RDS:
+                return AwsRdsEntity()
             
             case _:
                 raise NotImplementedError(f"Missing entity type for '{target_type.value}'")
